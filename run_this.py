@@ -82,8 +82,11 @@ if __name__ == '__main__':
             os.makedirs(cfg.log_dir)
         if not os.path.exists(cfg.sampel_save_dir):
             os.makedirs(cfg.sampel_save_dir)
-        if not os.path.exists(cfg.mesh_folder):
-            os.makedirs(cfg.mesh_folder)
+        if not os.path.exists(cfg.checkpoint_dir):
+            os.makedirs(cfg.checkpoint_dir)
+
+        # if not os.path.exists(cfg.mesh_folder):
+        #     os.makedirs(cfg.mesh_folder)
         my_gan = my_gan(sess, cfg)
         if cfg.is_train:
             my_gan.train()
