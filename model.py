@@ -46,9 +46,6 @@ class my_gan:
         self.g_lr_ = self.cfg.g_lr
         self.d_lr_ = self.cfg.d_lr
 
-        self.fc1ls = m4_BE_GAN_model.fc1ls
-        self.fc1le = m4_BE_GAN_model.fc1le
-        self.pose_model = m4_BE_GAN_model.pose_model
         # -----------------------------m4_BE_GAN_network-----------------------------
 
     def train(self):
@@ -66,9 +63,6 @@ class my_gan:
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
 
-        # load exp, pose, shape
-        self.load_expr_shape_pose_param()
-
         # load all train param
         could_load, counter = self.load(self.cfg.checkpoint_dir, self.cfg.dataset_name)
         if could_load:
@@ -76,22 +70,7 @@ class my_gan:
         else:
             print(" [!] Load failed...")
 
-        # names = np.loadtxt(os.path.join(self.cfg.datalabel_dir, self.cfg.datalabel_name), dtype=np.str)
-        # dataset_size = names.shape[0]
-        # names, labels = m4_get_file_label_name(os.path.join(self.cfg.datalabel_dir, self.cfg.datalabel_name),
-        #                                        os.path.join(self.cfg.dataset_dir, self.cfg.dataset_name))
-        # filenames = tf.constant(names)
-        # filelabels = tf.constant(labels)
-        # try:
-        #     dataset = tf.data.Dataset.from_tensor_slices((filenames, filelabels))
-        # except:
-        #     dataset = tf.contrib.data.Dataset.from_tensor_slices((filenames, filelabels))
-        #
-        # dataset = dataset.map(m4_parse_function)
-        # dataset = dataset.shuffle(buffer_size=10000).batch(self.cfg.batch_size * self.cfg.num_gpus).repeat(
-        #     self.cfg.epoch)
-        # iterator = dataset.make_one_shot_iterator()
-        # one_element = iterator.get_next()
+
         one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir, self.cfg.dataset_name,
                                                 self.cfg.batch_size, self.cfg.epoch)
         batch_idxs = dataset_size // (self.cfg.batch_size * self.cfg.num_gpus)
@@ -131,14 +110,15 @@ class my_gan:
                         [merged_] = self.sess.run([merged],feed_dict={self.images:batch_images,
                                                                       self.z: batch_z})
                         self.writer.add_summary(merged_, counter)
+                        print('add sunmmary once....')
 
                     endtime = datetime.datetime.now()
                     timediff = (endtime - starttime).total_seconds()
                     print(
-                        "Epoch: [%2d/%2d] [%6d/%6d] time: %3.3f, d_loss: %.4f, g_loss: %.4f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
+                        "Epoch: [%2d/%2d] [%5d/%5d] time: %3.3f, d_loss: %.4f, g_loss: %.4f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
                         % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
                     try:
-                        if epoch % self.cfg.saveimage_period == 0 and idx == 0:
+                        if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
                             samples = self.sess.run([self.sampler], feed_dict={self.z: batch_z_G})
                             m4_image_save_cv(samples[0], '{}/train_{}_{}.jpg'.format(self.cfg.sampel_save_dir, epoch, counter))
                             print('save train_{}_{}.jpg image.'.format(epoch, counter))

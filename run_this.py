@@ -6,7 +6,7 @@ import param
 from model import my_gan
 import time
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # 指定第  块GPU可用
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'  # 指定第  块GPU可用
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 # TF_CPP_MIN_LOG_LEVEL 取值 0 ： 0也是默认值，输出所有信息
@@ -41,6 +41,7 @@ parser.add_argument("--lr_lower_boundary", default=param.lr_lower_boundary, type
 parser.add_argument("--gamma", default=param.gamma, type=float, help="gamma")
 parser.add_argument("--lambda_k", default=param.lambda_k, type=float, help="lambda_k")
 parser.add_argument("--saveimage_period", default=param.saveimage_period, type=int, help="saveimage_period")
+parser.add_argument("--saveimage_idx", default=param.saveimage_idx, type=int, help="saveimage_idx")
 parser.add_argument("--savemodel_period", default=param.savemodel_period, type=int, help="savemodel_period")
 parser.add_argument("--add_summary_period", default=param.add_summary_period, type=int, help="add_summary_period")
 parser.add_argument("--lr_drop_period", default=param.lr_drop_period, type=int, help="lr_drop_period")
@@ -78,17 +79,18 @@ if __name__ == '__main__':
     config.gpu_options.allow_growth = True
     # config.gpu_options.per_process_gpu_memory_fraction = 0.9
     with tf.Session(config=config) as sess:
-        if not os.path.exists(cfg.log_dir):
-            os.makedirs(cfg.log_dir)
-        if not os.path.exists(cfg.sampel_save_dir):
-            os.makedirs(cfg.sampel_save_dir)
-        if not os.path.exists(cfg.checkpoint_dir):
-            os.makedirs(cfg.checkpoint_dir)
+
 
         # if not os.path.exists(cfg.mesh_folder):
         #     os.makedirs(cfg.mesh_folder)
         my_gan = my_gan(sess, cfg)
         if cfg.is_train:
+            if not os.path.exists(cfg.log_dir):
+                os.makedirs(cfg.log_dir)
+            if not os.path.exists(cfg.sampel_save_dir):
+                os.makedirs(cfg.sampel_save_dir)
+            if not os.path.exists(cfg.checkpoint_dir):
+                os.makedirs(cfg.checkpoint_dir)
             my_gan.train()
         else:
             # print('only train model, please set is_train==True')

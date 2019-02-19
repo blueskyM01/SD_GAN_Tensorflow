@@ -43,27 +43,15 @@ class m4_BE_GAN_network:
             grads_d = []
             grads_c = []
 
-            with tf.device("/gpu:{}".format(1)):
-                expr_shape_pose = ESP.m4_3DMM(self.cfg)
-                expr_shape_pose.extract_PSE_feats(images)
-                self.fc1ls = expr_shape_pose.fc1ls
-                self.fc1le = expr_shape_pose.fc1le
-                self.pose_model = expr_shape_pose.pose
-
             for i in range(self.cfg.num_gpus):
                 images_on_one_gpu = images[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
                 labels_on_one_gpu = labels[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
                 z_on_one_gpu = z[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-                # fc1ls_on_one_gpu = fc1ls[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-                # fc1le_on_one_gpu = fc1le[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-                # pose_model_on_one_gpu = pose_model[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
 
                 with tf.device("/gpu:{}".format(i)):
                     with tf.variable_scope("GPU_0") as scope:
                         if i != 0:
                             scope.reuse_variables()
-
-
 
                         G, self.G_var = self.GeneratorCNN(
                             z_on_one_gpu, self.conv_hidden_num, self.channel,
@@ -78,12 +66,6 @@ class m4_BE_GAN_network:
                             self.conv_hidden_num, self.data_format)
                         AE_G, AE_x = tf.split(d_out, 2)
 
-                        # self.G = denorm_img(G, self.data_format)
-                        # self.AE_G, self.AE_x = denorm_img(AE_G, self.data_format), denorm_img(AE_x, self.data_format)
-
-
-                        # g_optimizer, d_optimizer = optimizer(self.g_lr), optimizer(self.d_lr)
-
                         self.d_loss_real = tf.reduce_mean(tf.abs(AE_x - images_on_one_gpu))
                         self.d_loss_fake = tf.reduce_mean(tf.abs(AE_G - G))
 
@@ -91,40 +73,6 @@ class m4_BE_GAN_network:
                         self.g_loss = tf.reduce_mean(tf.abs(AE_G - G))
 
 
-                        '''
-                        fake_image = self.m4_generator(z_on_one_gpu, self.cfg, reuse=False)
-                        if i == 0:
-                            self.sampler = self.m4_generator(z_on_one_gpu, self.cfg, reuse=True)
-                        
-                        D_fake = self.m4_discriminator(fake_image, self.cfg, reuse=False)
-                        D_real = self.m4_discriminator(images_on_one_gpu, self.cfg, reuse=True)
-
-                        self.d_loss, self.g_loss = m4_wgan_loss(D_real, D_fake)
-                        '''
-
-
-                        '''
-                        # Gradient penalty
-                        lambda_gp = 10.
-                        gamma_gp = 1.
-                        batch_size = self.cfg.batch_size
-                        input_shape = images_on_one_gpu.get_shape().as_list()
-                        alpha = tf.random_uniform(shape=input_shape, minval=0., maxval=1.)
-                        differences = fake_image - images_on_one_gpu
-                        interpolates = images_on_one_gpu + alpha * differences
-                        gradients = tf.gradients(
-                            self.m4_discriminator(interpolates, self.cfg, reuse=True),
-                            [interpolates, ])[0]
-                        slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), axis=[1, 2, 3]))
-                        gradient_penalty = \
-                            lambda_gp * tf.reduce_mean((slopes / gamma_gp - 1.) ** 2)
-                        self.d_loss += gradient_penalty
-
-                        # drift
-                        eps = 0.001
-                        drift_loss = eps * tf.reduce_mean(tf.nn.l2_loss(D_real))
-                        self.d_loss += drift_loss
-                        '''
                         self.image_fake_sum = tf.summary.image('image_fake', AE_G)
                         self.g_loss_sum = tf.summary.scalar('g_loss', self.g_loss)
                         self.d_loss_sum = tf.summary.scalar('d_loss', self.d_loss)
@@ -137,6 +85,7 @@ class m4_BE_GAN_network:
                         grad_d = self.op_d.compute_gradients(self.d_loss, var_list=self.d_vars)
                         grads_d.append(grad_d)
                 print('Init GPU:{} finshed'.format(i))
+                time.sleep(1)
         mean_grad_g = m4_average_grads(grads_g)
         mean_grad_d = m4_average_grads(grads_d)
         self.g_optim = self.op_g.apply_gradients(mean_grad_g)

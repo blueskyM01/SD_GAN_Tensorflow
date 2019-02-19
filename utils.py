@@ -3,7 +3,7 @@ import numpy as np
 import os
 from glob import glob
 
-def m4_image_save_cv(images, savepath, rows=8, zero_mean=True):
+def m4_image_save_cv(images, savepath, rows=4, zero_mean=True):
     # introduction: a series of images save as a picture
     # image: 4 dims
     # rows: how many images in a row
