@@ -35,7 +35,7 @@ class my_gan:
         self.g_loss_sum = m4_BE_GAN_model.g_loss_sum
         self.d_loss_sum = m4_BE_GAN_model.d_loss_sum
         self.global_step = m4_BE_GAN_model.global_step
-        self.sampler = m4_BE_GAN_model.sampler
+        self.sampler = m4_BE_GAN_model.G
         self.k_update = m4_BE_GAN_model.k_update
         self.k_t = m4_BE_GAN_model.k_t
         self.Mglobal = m4_BE_GAN_model.measure
@@ -101,7 +101,7 @@ class my_gan:
                                                                        self.z: batch_z})
 
                     # Update learning rate
-                    if (epoch % self.cfg.lr_drop_period == 0 and idx == 0):
+                    if epoch % self.cfg.lr_drop_period == 0 and idx == 0:
                         _, _, self.g_lr_, self.d_lr_, = self.sess.run([self.g_lr_update, self.d_lr_update, self.g_lr, self.d_lr],
                                                                       feed_dict={self.images: batch_images,
                                                                                  self.z: batch_z})

@@ -21,75 +21,49 @@ class m4_BE_GAN_network:
         self.lambda_k = self.cfg.lambda_k
 
     def build_model(self, images, labels, z):
-        with tf.device('/cpu:0'):
+        _, height, width, self.channel = \
+            self.get_conv_shape(images, self.data_format)
+        self.repeat_num = int(np.log2(height)) - 2
 
-            _, height, width, self.channel = \
-                self.get_conv_shape(images, self.data_format)
-            self.repeat_num = int(np.log2(height)) - 2
+        self.g_lr = tf.Variable(self.cfg.g_lr, name='g_lr')
+        self.d_lr = tf.Variable(self.cfg.d_lr, name='d_lr')
 
-            self.g_lr = tf.Variable(self.cfg.g_lr, name='g_lr')
-            self.d_lr = tf.Variable(self.cfg.d_lr, name='d_lr')
+        self.g_lr_update = tf.assign(self.g_lr, tf.maximum(self.g_lr * 0.5, self.cfg.lr_lower_boundary),
+                                     name='g_lr_update')
+        self.d_lr_update = tf.assign(self.d_lr, tf.maximum(self.d_lr * 0.5, self.cfg.lr_lower_boundary),
+                                     name='d_lr_update')
+        self.k_t = tf.Variable(0., trainable=False, name='k_t')
 
-            self.g_lr_update = tf.assign(self.g_lr, tf.maximum(self.g_lr * 0.5, self.cfg.lr_lower_boundary),
-                                         name='g_lr_update')
-            self.d_lr_update = tf.assign(self.d_lr, tf.maximum(self.d_lr * 0.5, self.cfg.lr_lower_boundary),
-                                         name='d_lr_update')
-            self.k_t = tf.Variable(0., trainable=False, name='k_t')
-
-            self.op_g = tf.train.AdamOptimizer(learning_rate=self.g_lr)
-            self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
-
-            grads_g = []
-            grads_d = []
-            grads_c = []
-
-            for i in range(self.cfg.num_gpus):
-                images_on_one_gpu = images[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-                labels_on_one_gpu = labels[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-                z_on_one_gpu = z[self.cfg.batch_size * i:self.cfg.batch_size * (i + 1)]
-
-                with tf.device("/gpu:{}".format(i)):
-                    with tf.variable_scope("GPU_0") as scope:
-                        if i != 0:
-                            scope.reuse_variables()
-
-                        G, self.G_var = self.GeneratorCNN(
-                            z_on_one_gpu, self.conv_hidden_num, self.channel,
-                            self.repeat_num, self.data_format, reuse=False)
-
-                        if i == 0:
-                            self.sampler,self.G_var = self.GeneratorCNN(z_on_one_gpu, self.conv_hidden_num, self.channel,
-                                                             self.repeat_num, self.data_format, reuse=True)
-
-                        d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
-                            tf.concat([G, images_on_one_gpu], 0), self.channel, self.z_dim, self.repeat_num,
-                            self.conv_hidden_num, self.data_format)
-                        AE_G, AE_x = tf.split(d_out, 2)
-
-                        self.d_loss_real = tf.reduce_mean(tf.abs(AE_x - images_on_one_gpu))
-                        self.d_loss_fake = tf.reduce_mean(tf.abs(AE_G - G))
-
-                        self.d_loss = self.d_loss_real - self.k_t * self.d_loss_fake
-                        self.g_loss = tf.reduce_mean(tf.abs(AE_G - G))
+        self.op_g = tf.train.AdamOptimizer(learning_rate=self.g_lr)
+        self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
 
 
-                        self.image_fake_sum = tf.summary.image('image_fake', AE_G)
-                        self.g_loss_sum = tf.summary.scalar('g_loss', self.g_loss)
-                        self.d_loss_sum = tf.summary.scalar('d_loss', self.d_loss)
+        self.G, self.G_var = self.GeneratorCNN(
+            z, self.conv_hidden_num, self.channel,
+            self.repeat_num, self.data_format, reuse=False)
 
-                        t_vars = tf.trainable_variables()
-                        self.g_vars = [var for var in t_vars if 'generator' in var.name]
-                        self.d_vars = [var for var in t_vars if 'discriminator' in var.name]
-                        grad_g = self.op_g.compute_gradients(self.g_loss, var_list=self.g_vars)
-                        grads_g.append(grad_g)
-                        grad_d = self.op_d.compute_gradients(self.d_loss, var_list=self.d_vars)
-                        grads_d.append(grad_d)
-                print('Init GPU:{} finshed'.format(i))
-                time.sleep(1)
-        mean_grad_g = m4_average_grads(grads_g)
-        mean_grad_d = m4_average_grads(grads_d)
-        self.g_optim = self.op_g.apply_gradients(mean_grad_g)
-        self.d_optim = self.op_d.apply_gradients(mean_grad_d,global_step=self.global_step)
+        d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
+            tf.concat([self.G, images], 0), self.channel, self.z_dim, self.repeat_num,
+            self.conv_hidden_num, self.data_format)
+        AE_G, AE_x = tf.split(d_out, 2)
+
+        self.d_loss_real = tf.reduce_mean(tf.abs(AE_x - images))
+        self.d_loss_fake = tf.reduce_mean(tf.abs(AE_G - self.G))
+
+        self.d_loss = self.d_loss_real - self.k_t * self.d_loss_fake
+        self.g_loss = tf.reduce_mean(tf.abs(AE_G - self.G))
+
+
+        self.image_fake_sum = tf.summary.image('image_fake', self.G)
+        self.g_loss_sum = tf.summary.scalar('g_loss', self.g_loss)
+        self.d_loss_sum = tf.summary.scalar('d_loss', self.d_loss)
+
+        t_vars = tf.trainable_variables()
+        self.g_vars = [var for var in t_vars if 'generator' in var.name]
+        self.d_vars = [var for var in t_vars if 'discriminator' in var.name]
+
+        self.g_optim = self.op_g.minimize(self.g_loss, var_list=self.g_vars)
+        self.d_optim = self.op_d.minimize(self.d_loss, var_list=self.d_vars,global_step=self.global_step)
 
         self.balance = self.gamma * self.d_loss_real - self.g_loss
         self.measure = self.d_loss_real + tf.abs(self.balance)

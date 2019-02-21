@@ -6,7 +6,7 @@ import param
 from model import my_gan
 import time
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'  # 指定第  块GPU可用
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'  # 指定第  块GPU可用
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 # TF_CPP_MIN_LOG_LEVEL 取值 0 ： 0也是默认值，输出所有信息
