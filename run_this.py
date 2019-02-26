@@ -6,7 +6,7 @@ import param
 from model import my_gan
 import time
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '1'  # 指定第  块GPU可用
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # 指定第  块GPU可用
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 # TF_CPP_MIN_LOG_LEVEL 取值 0 ： 0也是默认值，输出所有信息
@@ -18,8 +18,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 parser = argparse.ArgumentParser()
 
 # -----------------------------m4_BE_GAN_network-----------------------------
-
-parser.add_argument("--is_train", default=param.is_train, type=int, help="Train")
+parser.add_argument("--is_train", default=param.is_train, type=bool, help="Train")
 parser.add_argument("--dataset_dir", default=param.dataset_dir, type=str, help="Train data set dir")
 parser.add_argument("--dataset_name", default=param.dataset_name, type=str, help="Train data set name")
 parser.add_argument("--datalabel_dir", default=param.datalabel_dir, type=str, help="Train data label dir")
@@ -91,6 +90,9 @@ if __name__ == '__main__':
                 os.makedirs(cfg.sampel_save_dir)
             if not os.path.exists(cfg.checkpoint_dir):
                 os.makedirs(cfg.checkpoint_dir)
+            if not os.path.exists(cfg.mesh_folder):
+                os.makedirs(cfg.mesh_folder)
+
             my_gan.train()
         else:
             # print('only train model, please set is_train==True')

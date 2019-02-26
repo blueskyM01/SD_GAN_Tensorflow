@@ -23,31 +23,31 @@ savemodel_period = 40
 
 # -----------------------------m4_BE_GAN_network-----------------------------
 is_train = True
-save_dir = '/muti-gpu-on-CASIA-WebFace_align-z_dim=128/'
+save_dir = '/muti-gpu-on-CASIA-WebFace_align-modify_lr/'
 dataset_dir = '/media/yang/F/DataSet/Face'
-dataset_name = 'CASIA-WebFace_align'
+dataset_name = 'lfw-deepfunneled'
 datalabel_dir = '/media/yang/F/DataSet/Face/Label'
-datalabel_name = 'CASIA-WebFace_align.txt'
+datalabel_name = 'lfw-deepfunneled.txt'
 log_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'logs'  # need to change
 sampel_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'samples'  # need to change
 checkpoint_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'checkpoint'  # need to change
 test_sample_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'test_sample'  # need to change
 num_gpus = 1
-epoch = 12
-batch_size = 16  # need to change
+epoch = 30
+batch_size = 32  # need to change
 z_dim = 128 # or 128
 conv_hidden_num = 128 # 128
 data_format = 'NHWC'
 g_lr = 0.00008  # need to change
 d_lr = 0.00008  # need to change
-lr_lower_boundary = 0.00001
+lr_lower_boundary = 0.00002
 gamma = 0.5
-lambda_k = 0.001
+lambda_k = 0.01
 add_summary_period = 100
 saveimage_period = 1
 saveimage_idx = 500
 savemodel_period = 1
-lr_drop_period = 2
+lr_drop_period = 1
 # -----------------------------m4_BE_GAN_network-----------------------------
 
 mesh_folder = 'output_ply'

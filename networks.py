@@ -13,29 +13,33 @@ class m4_BE_GAN_network:
     def __init__(self, sess, cfg):
         self.sess = sess
         self.cfg = cfg
+        # self.batch_idx = batch_idx
         self.global_step = tf.Variable(0, name='global_step', trainable=False)
         self.conv_hidden_num = cfg.conv_hidden_num
         self.data_format = cfg.data_format
         self.z_dim = cfg.z_dim
         self.gamma = self.cfg.gamma
         self.lambda_k = self.cfg.lambda_k
+        self.g_lr = tf.Variable(self.cfg.g_lr, name='g_lr')
+        self.d_lr = tf.Variable(self.cfg.d_lr, name='d_lr')
 
     def build_model(self, images, labels, z):
         _, height, width, self.channel = \
             self.get_conv_shape(images, self.data_format)
         self.repeat_num = int(np.log2(height)) - 2
 
-        self.g_lr = tf.Variable(self.cfg.g_lr, name='g_lr')
-        self.d_lr = tf.Variable(self.cfg.d_lr, name='d_lr')
+        # self.learning_rate = tf.train.exponential_decay(self.cfg.g_lr, self.global_step, self.cfg.epoch * self.batch_idx, 0.9, staircase=True)
 
-        self.g_lr_update = tf.assign(self.g_lr, tf.maximum(self.g_lr * 0.5, self.cfg.lr_lower_boundary),
+        self.g_lr_update = tf.assign(self.g_lr, tf.maximum(self.g_lr * 0.9, self.cfg.lr_lower_boundary),
                                      name='g_lr_update')
-        self.d_lr_update = tf.assign(self.d_lr, tf.maximum(self.d_lr * 0.5, self.cfg.lr_lower_boundary),
+        self.d_lr_update = tf.assign(self.d_lr, tf.maximum(self.d_lr * 0.9, self.cfg.lr_lower_boundary),
                                      name='d_lr_update')
         self.k_t = tf.Variable(0., trainable=False, name='k_t')
 
         self.op_g = tf.train.AdamOptimizer(learning_rate=self.g_lr)
         self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
+
+        self.shape_norm, self.expr_norm, self.pose_norm = self.model_3DMM_default_graph(images)
 
 
         self.G, self.G_var = self.GeneratorCNN(
@@ -153,3 +157,69 @@ class m4_BE_GAN_network:
         else:
             x = tf.image.resize_nearest_neighbor(x, new_size)
         return x
+
+
+    def model_3DMM_new_graph(self,new_graph, images_3DMM):
+        with new_graph.as_default():
+            expr_shape_pose = ESP.m4_3DMM(self.cfg)
+            expr_shape_pose.extract_PSE_feats(images_3DMM)
+            self.fc1ls = expr_shape_pose.fc1ls
+            self.fc1le = expr_shape_pose.fc1le
+            self.pose_model = expr_shape_pose.pose
+            shape_norm = tf.nn.l2_normalize(self.fc1ls,dim=0)
+            expr_norm = tf.nn.l2_normalize(self.fc1le,dim=0)
+            pose_norm = tf.nn.l2_normalize(self.pose_model, dim=0)
+
+            sess_3DMM = tf.Session(graph=new_graph)
+            try:
+                sess_3DMM.run(tf.global_variables_initializer())
+            except:
+                sess_3DMM.run(tf.initialize_all_variables())
+            self.load_expr_shape_pose_param_new_graph(sess_3DMM)
+            return shape_norm, expr_norm, pose_norm
+
+    def model_3DMM_default_graph(self,images):
+        expr_shape_pose = ESP.m4_3DMM(self.cfg)
+        expr_shape_pose.extract_PSE_feats(images)
+        self.fc1ls = expr_shape_pose.fc1ls
+        self.fc1le = expr_shape_pose.fc1le
+        self.pose_model = expr_shape_pose.pose
+        shape_norm = tf.nn.l2_normalize(self.fc1ls,dim=0)
+        expr_norm = tf.nn.l2_normalize(self.fc1le,dim=0)
+        pose_norm = tf.nn.l2_normalize(self.pose_model, dim=0)
+        return shape_norm, expr_norm, pose_norm
+
+
+    def load_expr_shape_pose_param_new_graph(self, sess):
+        # Add ops to save and restore all the variables.
+        saver_pose = tf.train.Saver(
+            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
+        saver_ini_shape_net = tf.train.Saver(
+            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
+        saver_ini_expr_net = tf.train.Saver(
+            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
+
+        # Load face pose net model from Chang et al.'ICCVW17
+        try:
+            load_path = self.cfg.fpn_new_model_ckpt_file_path
+            saver_pose.restore(sess, load_path)
+            print('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' successful....')
+        except:
+            raise Exception('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' failed....')
+
+        # load 3dmm shape and texture model from Tran et al.' CVPR2017
+        try:
+            load_path = self.cfg.Shape_Model_file_path
+            saver_ini_shape_net.restore(sess, load_path)
+            print('Load ' + self.cfg.Shape_Model_file_path + ' successful....')
+        except:
+            raise Exception('Load ' + self.cfg.Shape_Model_file_path + ' failed....')
+
+        # load our expression net model
+        try:
+            load_path = self.cfg.Expression_Model_file_path
+            saver_ini_expr_net.restore(sess, load_path)
+            print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
+        except:
+            raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
+        time.sleep(3)
