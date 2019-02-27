@@ -5,9 +5,6 @@ import tensorflow as tf
 import param
 from model import my_gan
 import time
-
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # 指定第  块GPU可用
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 # TF_CPP_MIN_LOG_LEVEL 取值 0 ： 0也是默认值，输出所有信息
 # TF_CPP_MIN_LOG_LEVEL 取值 1 ： 屏蔽通知信息
@@ -18,6 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 parser = argparse.ArgumentParser()
 
 # -----------------------------m4_BE_GAN_network-----------------------------
+parser.add_argument("--CUDA_assign", default=param.CUDA_assign, type=str, help="Train")
 parser.add_argument("--is_train", default=param.is_train, type=bool, help="Train")
 parser.add_argument("--dataset_dir", default=param.dataset_dir, type=str, help="Train data set dir")
 parser.add_argument("--dataset_name", default=param.dataset_name, type=str, help="Train data set name")
@@ -69,8 +67,11 @@ parser.add_argument("--Expression_Model_file_path", default=param.Expression_Mod
 parser.add_argument("--BaselFaceModel_mod_file_path", default=param.BaselFaceModel_mod_file_path, type=str,
                     help="Load BaselFaceModel_mod.mat")
 # -----------------------------expression,shape,pose-----------------------------
-
 cfg = parser.parse_args()
+
+
+os.environ["CUDA_VISIBLE_DEVICES"] = cfg.CUDA_assign  # 指定第  块GPU可用
+
 
 if __name__ == '__main__':
 

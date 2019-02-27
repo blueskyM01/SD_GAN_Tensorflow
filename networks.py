@@ -39,12 +39,14 @@ class m4_BE_GAN_network:
         self.op_g = tf.train.AdamOptimizer(learning_rate=self.g_lr)
         self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
 
-        self.shape_norm, self.expr_norm, self.pose_norm = self.model_3DMM_default_graph(images)
+        self.shape_norm, self.expr_norm, self.pose_norm = self.model_3DMM_default_graph(images,reuse=False)
 
 
         self.G, self.G_var = self.GeneratorCNN(
             z, self.conv_hidden_num, self.channel,
             self.repeat_num, self.data_format, reuse=False)
+
+        # self.shape_norm1, self.expr_norm1, self.pose_norm1 = self.model_3DMM_default_graph(images, reuse=True)
 
         d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
             tf.concat([self.G, images], 0), self.channel, self.z_dim, self.repeat_num,
@@ -178,9 +180,9 @@ class m4_BE_GAN_network:
             self.load_expr_shape_pose_param_new_graph(sess_3DMM)
             return shape_norm, expr_norm, pose_norm
 
-    def model_3DMM_default_graph(self,images):
+    def model_3DMM_default_graph(self,images,reuse):
         expr_shape_pose = ESP.m4_3DMM(self.cfg)
-        expr_shape_pose.extract_PSE_feats(images)
+        expr_shape_pose.extract_PSE_feats(images, reuse=reuse)
         self.fc1ls = expr_shape_pose.fc1ls
         self.fc1le = expr_shape_pose.fc1le
         self.pose_model = expr_shape_pose.pose

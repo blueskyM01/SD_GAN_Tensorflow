@@ -22,6 +22,7 @@ savemodel_period = 40
 '''
 
 # -----------------------------m4_BE_GAN_network-----------------------------
+CUDA_assign = '1'
 is_train = True
 save_dir = '/muti-gpu-on-CASIA-WebFace_align-modify_lr/'
 dataset_dir = '/media/yang/F/DataSet/Face'

@@ -81,7 +81,7 @@ class my_gan:
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
 
-        self.load_expr_shape_pose_param()
+        # self.load_expr_shape_pose_param()
 
         # load all train param
         could_load, counter = self.load(self.cfg.checkpoint_dir, self.cfg.dataset_name)
@@ -109,7 +109,7 @@ class my_gan:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images,batch_images[0:1],axis=0)
 
-                image4 = cv2.imread('/media/yang/F/DataSet/Face/CASIA-WebFace_align/0000619/054.png')
+                image4 = cv2.imread('/media/yang/F/DataSet/Face/CASIA-WebFace_align/0000121/019.png')
                 image4 = cv2.cvtColor(image4,cv2.COLOR_BGR2RGB)
                 image4 = cv2.resize(image4,(128,128),interpolation=cv2.INTER_CUBIC)
                 image_h, imagew, nc = image4.shape
