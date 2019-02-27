@@ -3,12 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f00777bc-b784-4dbf-8661-5ee35500e39d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ExpShapePoseNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/ExpShapePoseNet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" beforeDir="false" afterPath="$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/networks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/param.py" beforeDir="false" afterPath="$PROJECT_DIR$/param.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_this.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_this.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -58,12 +53,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="py" value="2942" />
-          <entry key="sh" value="52" />
+          <entry key="sh" value="53" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="52" />
+          <entry key="PLAIN_TEXT" value="53" />
           <entry key="Python" value="2942" />
         </counts>
       </usages-collector>
@@ -87,38 +82,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/networks.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="458">
-              <caret line="49" lean-forward="true" selection-start-line="49" selection-end-line="49" />
+            <state relative-caret-position="-456">
+              <caret line="63" column="61" selection-start-line="63" selection-start-column="61" selection-end-line="63" selection-end-column="61" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
-                <marker date="1551254971594" expanded="true" signature="8279:8756" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data_loader_tensorflow_dataset.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-11">
-              <caret line="6" selection-start-line="6" selection-end-line="6" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="16" column="53" selection-start-line="16" selection-start-column="53" selection-end-line="16" selection-end-column="53" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
+                <marker date="1551272922201" expanded="true" signature="9359:9432" ph="..." />
               </folding>
             </state>
           </provider>
@@ -127,8 +98,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="479">
-              <caret line="120" column="48" lean-forward="true" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
+            <state relative-caret-position="583">
+              <caret line="166" column="39" selection-start-line="166" selection-start-column="39" selection-end-line="166" selection-end-column="39" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -139,8 +110,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_this.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="475">
-              <caret line="82" selection-start-line="82" selection-end-line="82" />
+            <state relative-caret-position="420">
+              <caret line="46" column="37" selection-start-line="46" selection-start-column="37" selection-end-line="46" selection-end-column="37" />
               <folding>
                 <element signature="e#0#64#0" expanded="true" />
               </folding>
@@ -151,8 +122,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/param.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="47" column="20" selection-start-line="47" selection-start-column="20" selection-end-line="47" selection-end-column="20" />
+            <state relative-caret-position="230">
+              <caret line="46" column="23" lean-forward="true" selection-start-line="46" selection-start-column="23" selection-end-line="46" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="171">
+              <caret line="9" column="17" lean-forward="true" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -160,29 +140,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExpShapePoseNet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="78">
-              <caret line="61" column="39" selection-start-line="61" selection-start-column="39" selection-end-line="61" selection-end-column="39" />
+            <state relative-caret-position="19">
+              <caret line="102" column="27" selection-start-line="102" selection-start-column="27" selection-end-line="102" selection-end-column="27" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="477">
-              <caret line="55" column="46" selection-start-line="55" selection-start-column="46" selection-end-line="55" selection-end-column="46" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/site-packages/tensorflow/python/ops/variable_scope.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="1857" column="6" selection-start-line="1857" selection-start-column="6" selection-end-line="1857" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -215,15 +177,16 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/data_loader_tensorflow_dataset.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/ThreeDMM_shape.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/run_this.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/ops.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/networks.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/param_set.sh" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/yh.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/ExpShapePoseNet.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/param.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/data_loader_tensorflow_dataset.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/model.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/utils.py" root0="SKIP_INSPECTION" />
   </component>
@@ -242,6 +205,7 @@
         <option value="$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" />
         <option value="$PROJECT_DIR$/model.py" />
         <option value="$PROJECT_DIR$/networks.py" />
+        <option value="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" />
       </list>
     </option>
   </component>
@@ -425,8 +389,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15812431" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21264994" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -508,8 +473,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/param.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="47" column="20" selection-start-line="47" selection-start-column="20" selection-end-line="47" selection-end-column="20" />
+        <state relative-caret-position="230">
+          <caret line="46" column="23" lean-forward="true" selection-start-line="46" selection-start-column="23" selection-end-line="46" selection-end-column="23" />
         </state>
       </provider>
     </entry>
@@ -539,8 +504,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/run_this.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="475">
-          <caret line="82" selection-start-line="82" selection-end-line="82" />
+        <state relative-caret-position="420">
+          <caret line="46" column="37" selection-start-line="46" selection-start-column="37" selection-end-line="46" selection-end-column="37" />
           <folding>
             <element signature="e#0#64#0" expanded="true" />
           </folding>
@@ -549,8 +514,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="120" column="48" lean-forward="true" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
+        <state relative-caret-position="583">
+          <caret line="166" column="39" selection-start-line="166" selection-start-column="39" selection-end-line="166" selection-end-column="39" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
@@ -559,24 +524,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ExpShapePoseNet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="78">
-          <caret line="61" column="39" selection-start-line="61" selection-start-column="39" selection-end-line="61" selection-end-column="39" />
+        <state relative-caret-position="19">
+          <caret line="102" column="27" selection-start-line="102" selection-start-column="27" selection-end-line="102" selection-end-column="27" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/output_ply/11.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/output_ply/11.jpg" />
     <entry file="file://$PROJECT_DIR$/networks.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="458">
-          <caret line="49" lean-forward="true" selection-start-line="49" selection-end-line="49" />
+        <state relative-caret-position="-456">
+          <caret line="63" column="61" selection-start-line="63" selection-start-column="61" selection-end-line="63" selection-end-column="61" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-            <marker date="1551254971594" expanded="true" signature="8279:8756" ph="..." />
+            <marker date="1551272922201" expanded="true" signature="9359:9432" ph="..." />
           </folding>
         </state>
       </provider>
