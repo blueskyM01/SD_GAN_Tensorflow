@@ -5,6 +5,9 @@ import tensorflow as tf
 import param
 from model import my_gan
 import time
+
+
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 # TF_CPP_MIN_LOG_LEVEL 取值 0 ： 0也是默认值，输出所有信息
 # TF_CPP_MIN_LOG_LEVEL 取值 1 ： 屏蔽通知信息
@@ -15,7 +18,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # or any {'0', '1', '2'}
 parser = argparse.ArgumentParser()
 
 # -----------------------------m4_BE_GAN_network-----------------------------
-parser.add_argument("--CUDA_assign", default=param.CUDA_assign, type=str, help="Train")
+parser.add_argument("--gpu_assign", default=param.gpu_assign, type=str, help="assign gpu")
 parser.add_argument("--is_train", default=param.is_train, type=bool, help="Train")
 parser.add_argument("--dataset_dir", default=param.dataset_dir, type=str, help="Train data set dir")
 parser.add_argument("--dataset_name", default=param.dataset_name, type=str, help="Train data set name")
@@ -42,6 +45,14 @@ parser.add_argument("--saveimage_idx", default=param.saveimage_idx, type=int, he
 parser.add_argument("--savemodel_period", default=param.savemodel_period, type=int, help="savemodel_period")
 parser.add_argument("--add_summary_period", default=param.add_summary_period, type=int, help="add_summary_period")
 parser.add_argument("--lr_drop_period", default=param.lr_drop_period, type=int, help="lr_drop_period")
+parser.add_argument("--lambda_s", default=param.lambda_s, type=float, help="weight of shape loss")
+parser.add_argument("--lambda_e", default=param.lambda_e, type=float, help="weight of expression loss")
+parser.add_argument("--lambda_p", default=param.lambda_p, type=float, help="weight of pose loss")
+parser.add_argument("--lambda_id", default=param.lambda_id, type=float, help="weight of ID loss")
+
+
+
+
 # -----------------------------m4_BE_GAN_network-----------------------------
 
 # -----------------------------expression,shape,pose-----------------------------
@@ -67,11 +78,10 @@ parser.add_argument("--Expression_Model_file_path", default=param.Expression_Mod
 parser.add_argument("--BaselFaceModel_mod_file_path", default=param.BaselFaceModel_mod_file_path, type=str,
                     help="Load BaselFaceModel_mod.mat")
 # -----------------------------expression,shape,pose-----------------------------
+
 cfg = parser.parse_args()
 
-
-os.environ["CUDA_VISIBLE_DEVICES"] = cfg.CUDA_assign  # 指定第  块GPU可用
-
+os.environ["CUDA_VISIBLE_DEVICES"] = cfg.gpu_assign  # 指定第  块GPU可用
 
 if __name__ == '__main__':
 
@@ -91,8 +101,6 @@ if __name__ == '__main__':
                 os.makedirs(cfg.sampel_save_dir)
             if not os.path.exists(cfg.checkpoint_dir):
                 os.makedirs(cfg.checkpoint_dir)
-            if not os.path.exists(cfg.mesh_folder):
-                os.makedirs(cfg.mesh_folder)
 
             my_gan.train()
         else:

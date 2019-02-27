@@ -26,10 +26,10 @@ class Pose_Estimation(object):
     self.std_labels = std_labels
     #self.train_mean_vec = train_mean_vec
 
-  def _build_graph(self, reuse):
+  def _build_graph(self):
     """Build a whole graph for the model."""
     self.global_step = tf.Variable(0, name='global_step', trainable=False)
-    self._build_model(reuse)
+    self._build_model()
     
     if self.mode == 'train':
       self._build_train_op()
@@ -40,10 +40,10 @@ class Pose_Estimation(object):
     """Map a stride scalar to the stride array for tf.nn.conv2d."""
     return [1, stride, stride, 1]
 
-  def _build_model(self, reuse):
+  def _build_model(self):
     """Build the core model within the graph."""
    
-    with tf.variable_scope('Spatial_Transformer', reuse=reuse):
+    with tf.variable_scope('Spatial_Transformer'):
       x = self._images
       x = tf.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32)) # the image should be 227 x 227 x 3
       
@@ -53,7 +53,7 @@ class Pose_Estimation(object):
    
 
   
-    with tf.variable_scope('costs',reuse=reuse):
+    with tf.variable_scope('costs'):
       self.predictions = theta
       self.preds_unNormalized = theta * (self.std_labels + 0.000000000000000001) + self.mean_labels
       pred_dim1 = theta.get_shape()[0]

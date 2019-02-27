@@ -18,32 +18,32 @@ class my_gan:
         self.cfg = cfg
         self.new_graph = tf.Graph()
 
-        self.images = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3],
-                                     name='real_image')
-        self.labels = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 10000],
-                                     name='id')
+        self.images = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3], name='real_image')
+        self.labels = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 10575], name='id')
         self.z = tf.placeholder(dtype=tf.float32, shape=[None, self.cfg.z_dim], name='noise_z')
 
         self.shape_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 198], name='shape_real')
         self.pose_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 6], name='pose_real')
         self.expr_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 29], name='expr_real')
-        self.id_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128], name='id_real')
+        # self.id_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128], name='id_real')
 
         with self.new_graph.as_default():
-            self.image_3DMM = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3],
+            self.images_new_graph = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3],
                                      name='real_image')
 
-        # -----------------------------m4_BE_GAN_network-----------------------------
-        m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg)
-        m4_BE_GAN_model.build_model(self.images, self.labels, self.z)
+
+        m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg, self.new_graph)
+        m4_BE_GAN_model.build_model(self.images, self.labels, self.z, self.images_new_graph, self.shape_real, self.pose_real,
+                                    self.expr_real)
         self.g_optim = m4_BE_GAN_model.g_optim
         self.d_optim = m4_BE_GAN_model.d_optim
         self.g_loss = m4_BE_GAN_model.g_loss
         self.d_loss = m4_BE_GAN_model.d_loss
+        self.p_loss = m4_BE_GAN_model.pose_loss
+        self.s_loss = m4_BE_GAN_model.shape_loss
+        self.e_loss = m4_BE_GAN_model.expr_loss
 
         self.image_fake_sum = m4_BE_GAN_model.image_fake_sum
-        self.g_loss_sum = m4_BE_GAN_model.g_loss_sum
-        self.d_loss_sum = m4_BE_GAN_model.d_loss_sum
         self.global_step = m4_BE_GAN_model.global_step
         self.sampler = m4_BE_GAN_model.G
         self.k_update = m4_BE_GAN_model.k_update
@@ -56,15 +56,14 @@ class my_gan:
         self.g_lr_ = self.cfg.g_lr
         self.d_lr_ = self.cfg.d_lr
 
-        self.fc1ls = m4_BE_GAN_model.fc1ls
-        self.fc1le = m4_BE_GAN_model.fc1le
-        self.pose_model = m4_BE_GAN_model.pose_model
+        self.shape_real_norm = m4_BE_GAN_model.shape_real_norm
+        self.expr_real_norm = m4_BE_GAN_model.expr_real_norm
+        self.pose_real_norm = m4_BE_GAN_model.pose_real_norm
+        self.new_sess = m4_BE_GAN_model.new_sess
 
-        self.shape_norm = m4_BE_GAN_model.shape_norm
-        self.expr_norm = m4_BE_GAN_model.expr_norm
-        self.pose_norm = m4_BE_GAN_model.pose_norm
-
-        # -----------------------------m4_BE_GAN_network-----------------------------
+        # self.shape_norm = m4_BE_GAN_model.shape_norm
+        # self.expr_norm = m4_BE_GAN_model.expr_norm
+        # self.pose_norm = m4_BE_GAN_model.pose_norm
 
     def train(self):
         try:
@@ -81,7 +80,7 @@ class my_gan:
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
 
-        # self.load_expr_shape_pose_param()
+        self.load_expr_shape_pose_param()
 
         # load all train param
         could_load, counter = self.load(self.cfg.checkpoint_dir, self.cfg.dataset_name)
@@ -96,6 +95,10 @@ class my_gan:
         batch_idxs = dataset_size // (self.cfg.batch_size)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
+        (shape_real_norm_G, expr_real_norm_G, pose_real_norm_G) = self.new_sess.run(
+                                                            [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
+                                                            feed_dict={self.images_new_graph: batch_images_G})
+
         m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
         print('save x_fixed.jpg.')
         # try:
@@ -109,91 +112,58 @@ class my_gan:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images,batch_images[0:1],axis=0)
 
-                image4 = cv2.imread('/media/yang/F/DataSet/Face/CASIA-WebFace_align/0000121/019.png')
-                image4 = cv2.cvtColor(image4,cv2.COLOR_BGR2RGB)
-                image4 = cv2.resize(image4,(128,128),interpolation=cv2.INTER_CUBIC)
-                image_h, imagew, nc = image4.shape
-
-                image4 = image4 / 127.5 - 1.0
-                image_list = []
-                for iii in range(self.cfg.batch_size):
-                    image_list.append(image4)
-                image4_np = np.array(image_list)
-
-
-                m4_image_save_cv(image4_np, '{}/11.jpg'.format(self.cfg.mesh_folder))
-                print('save x_fixed4444.jpg.')
-
-                (Shape_Texture, Expr, Pose) = self.sess.run([self.fc1ls, self.fc1le, self.pose_model],
-                                                            feed_dict={self.images: image4_np})
-
-                (Shape_Texture_norn, Expr_norn, Pose_norn) = self.sess.run([self.shape_norm, self.expr_norm, self.pose_norm],
-                                                            feed_dict={self.images: image4_np})
-
-                file_txt_path = '11_front_'
-
-
-                np.savetxt(file_txt_path + 'pose.txt', Pose_norn,fmt='%.32e')
-                np.savetxt(file_txt_path + 'Expr.txt', Expr_norn, fmt='%.32e')
-                np.savetxt(file_txt_path + 'Shape.txt', Shape_Texture_norn, fmt='%.32e')
-
-                # -------------------------------make .ply file---------------------------------
-                ## Modifed Basel Face Model
-                BFM_path = self.cfg.BaselFaceModel_mod_file_path
-                model = scipy.io.loadmat(BFM_path, squeeze_me=True, struct_as_record=False)
-                model = model["BFM"]
-                faces = model.faces - 1
-                print('> Loaded the Basel Face Model to write the 3D output!')
-
-                for i in range(self.cfg.batch_size):
-                    outFile = self.cfg.mesh_folder + '/' + 'haha' + '_' + str(i)
-
-                    Pose[i] = np.reshape(Pose[i], [-1])
-                    Shape_Texture[i] = np.reshape(Shape_Texture[i], [-1])
-                    Shape = Shape_Texture[i][0:99]
-                    Shape = np.reshape(Shape, [-1])
-                    Expr[i] = np.reshape(Expr[i], [-1])
-
-                    #########################################
-                    ### Save 3D shape information (.ply file)
-
-                    # Shape + Expression + Pose
-                    SEP, TEP = utils_3DMM.projectBackBFM_withEP(model, Shape_Texture[i], Expr[i], Pose[i])
-                    utils_3DMM.write_ply_textureless(outFile + '_Shape_Expr_Pose.ply', SEP, faces)
-
-                break
+                (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
+                                                                    [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
+                                                                    feed_dict={self.images_new_graph: batch_images})
 
                 # get measure stand
                 k_update, k_t, Mglobal = self.sess.run([self.k_update, self.k_t, self.Mglobal],
                                                        feed_dict={self.images: batch_images,
-                                                                  self.z: batch_z})
+                                                                  self.z: batch_z,
+                                                                  self.shape_real:shape_real_norm,
+                                                                  self.pose_real:pose_real_norm,
+                                                                  self.expr_real:expr_real_norm})
+
                 # get loss
-                d_loss, g_loss, counter = self.sess.run([self.d_loss, self.g_loss, self.global_step],
+                d_loss, g_loss, p_loss, s_loss, e_loss, counter = self.sess.run(
+                                                        [self.d_loss, self.g_loss,self.p_loss,self.s_loss,self.e_loss, self.global_step],
                                                         feed_dict={self.images: batch_images,
-                                                                   self.z: batch_z})
+                                                                   self.z: batch_z,
+                                                                   self.shape_real: shape_real_norm,
+                                                                   self.pose_real: pose_real_norm,
+                                                                   self.expr_real: expr_real_norm})
 
                 # Update learning rate
                 if epoch % self.cfg.lr_drop_period == 0 and idx == (batch_idxs-1):
 
                     _, _, self.g_lr_, self.d_lr_, = self.sess.run([self.g_lr, self.d_lr, self.g_lr_update, self.d_lr_update],
                                                                   feed_dict={self.images: batch_images,
-                                                                             self.z: batch_z})
+                                                                             self.z: batch_z,
+                                                                             self.shape_real: shape_real_norm,
+                                                                             self.pose_real: pose_real_norm,
+                                                                             self.expr_real: expr_real_norm})
                     print('Update learning rate once....')
                 # add to summary
                 if counter % self.cfg.add_summary_period == 0:
-                    [merged_] = self.sess.run([merged],feed_dict={self.images:batch_images,
-                                                                  self.z: batch_z})
+                    [merged_] = self.sess.run([merged],feed_dict={self.images: batch_images,
+                                                                  self.z: batch_z,
+                                                                  self.shape_real: shape_real_norm,
+                                                                  self.pose_real: pose_real_norm,
+                                                                  self.expr_real: expr_real_norm})
                     self.writer.add_summary(merged_, counter)
                     print('add sunmmary once....')
 
                 endtime = datetime.datetime.now()
                 timediff = (endtime - starttime).total_seconds()
                 print(
-                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.3f, d_loss: %.4f, g_loss: %.4f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
-                    % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
+                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.6f, s_loss:%.6f, e_loss；%.6f, k_t: %.6f, Mglobal: %.6f, g_lr: %.5f, d_lr: %.5f" \
+                    % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
                 try:
                     if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
-                        samples = self.sess.run([self.sampler], feed_dict={self.z: batch_z_G})
+                        samples = self.sess.run([self.sampler], feed_dict={self.z: batch_z_G,
+                                                                           self.shape_real: shape_real_norm_G,
+                                                                           self.pose_real: pose_real_norm_G,
+                                                                           self.expr_real: expr_real_norm_G})
                         m4_image_save_cv(samples[0], '{}/train_{}_{}.jpg'.format(self.cfg.sampel_save_dir, epoch, counter))
                         print('save train_{}_{}.jpg image.'.format(epoch, counter))
                 except:
@@ -205,7 +175,7 @@ class my_gan:
                         print('one param model saved....')
                 except:
                     print('one model save error....')
-            break
+
 
         # except:
         #     print('Mission complete!')
