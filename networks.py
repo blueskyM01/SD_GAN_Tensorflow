@@ -5,6 +5,7 @@ from ops import *
 from utils import *
 import time
 import ExpShapePoseNet as ESP
+import importlib
 
 #-----------------------------m4_BE_GAN_network-----------------------------
 #---------------------------------------------------------------------------
@@ -35,17 +36,20 @@ class m4_BE_GAN_network:
         self.op_g = tf.train.AdamOptimizer(learning_rate=self.g_lr)
         self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
 
+        id_feat_real = self.m4_ID_Extractor(images,reuse=False)
         self.shape_real_norm, self.expr_real_norm, self.pose_real_norm, self.new_sess = self.model_3DMM_new_graph(
                                                                                         self.new_graph, images_new_graph) # get real feat
-        z_concat_feat = tf.concat([z, shape_real, pose_real, expr_real], axis=1)
+        z_concat_feat = tf.concat([z, shape_real, pose_real, expr_real, id_feat_real], axis=1)
 
 
         self.G, self.G_var = self.GeneratorCNN( z_concat_feat, self.conv_hidden_num, self.channel, self.repeat_num, self.data_format, reuse=False)
+        id_feat_fake = self.m4_ID_Extractor(self.G,reuse=True)
         shape_fake_norm, expr_fake_norm, pose_fake_norm = self.model_3DMM_default_graph(self.G) # get fake feat
 
         self.shape_loss = tf.reduce_mean(tf.square(shape_real - shape_fake_norm))
         self.expr_loss = tf.reduce_mean(tf.square(expr_real - expr_fake_norm))
         self.pose_loss = tf.reduce_mean(tf.square(pose_real - pose_fake_norm))
+        self.id_loss = tf.reduce_mean(tf.square(id_feat_real - id_feat_fake))
 
         d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
             tf.concat([self.G, images], 0), self.channel, self.z_dim, self.repeat_num,
@@ -57,7 +61,7 @@ class m4_BE_GAN_network:
 
         self.d_loss = self.d_loss_real - self.k_t * self.d_loss_fake
         self.g_loss = tf.reduce_mean(tf.abs(AE_G - self.G)) + self.cfg.lambda_s * self.shape_loss + self.cfg.lambda_e * self.expr_loss \
-                                                            + self.cfg.lambda_p * self.pose_loss
+                                                            + self.cfg.lambda_p * self.pose_loss + self.cfg.lambda_id * self.id_loss
 
 
         self.image_fake_sum = tf.summary.image('image_fake', self.G, 3)
@@ -66,6 +70,7 @@ class m4_BE_GAN_network:
         shape_loss_sum = tf.summary.scalar('shape_loss', self.shape_loss)
         expr_loss_sum = tf.summary.scalar('expr_loss', self.expr_loss)
         pose_loss_sum = tf.summary.scalar('pose_loss', self.pose_loss)
+        id_loss_sum = tf.summary.scalar('id_loss', self.id_loss)
 
         t_vars = tf.trainable_variables()
         self.g_vars = [var for var in t_vars if 'generator' in var.name]
@@ -227,4 +232,17 @@ class m4_BE_GAN_network:
             print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
         except:
             raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
-        time.sleep(3)
+
+    def m4_ID_Extractor(self, images, reuse=False):
+        with tf.variable_scope('facenet',reuse=reuse) as scope:
+            network = importlib.import_module('inception_resnet_v1')
+            prelogits, _ = network.inference(images, 1.0,
+                                             phase_train=False, bottleneck_layer_size=128,
+                                             weight_decay=0.0005)
+            logits = slim.fully_connected(prelogits, 10575, activation_fn=None,
+                                          weights_initializer=slim.initializers.xavier_initializer(),
+                                          weights_regularizer=slim.l2_regularizer(0.0000),
+                                          scope='Logits', reuse=reuse)
+
+            embeddings = tf.nn.l2_normalize(prelogits, 1, 1e-10, name='embeddings') # this is we need id feat
+        return embeddings

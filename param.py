@@ -22,13 +22,15 @@ savemodel_period = 40
 '''
 
 # -----------------------------m4_BE_GAN_network-----------------------------
-gpu_assign = '1'
+gpu_assign = '0'
 is_train = True
-save_dir = '/with pose shape expression/'
+save_dir = '/with all/'
 dataset_dir = '/media/yang/F/DataSet/Face'
 dataset_name = 'CASIA-WebFace_align'
 datalabel_dir = '/media/yang/F/DataSet/Face/Label'
 datalabel_name = 'CASIA-WebFace_align.txt'
+face_model_dir='/media/yang/F/DataSet/Face/param_of_SD_GAN/face_model'
+face_model_name='CASIA-WebFace_align'
 log_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'logs'  # need to change
 sampel_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'samples'  # need to change
 checkpoint_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'checkpoint'  # need to change

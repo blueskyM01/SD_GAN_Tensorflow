@@ -1,10 +1,10 @@
 python run_this.py \
---gpu_assign='0' \
+--gpu_assign='1' \
 --is_train=True \
---log_dir='/media/yang/F/ubuntu/SD_GAN_Result/with pose shape expression lambdak=0.001/logs' \
---sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/with pose shape expression lambdak=0.001/samples' \
---checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/with pose shape expression lambdak=0.001/checkpoint' \
---test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/with pose shape expression lambdak=0.001/test_sample' \
+--log_dir='/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/logs' \
+--sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/samples' \
+--checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/checkpoint' \
+--test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/test_sample' \
 --lambda_k=0.01 \
 --lambda_s=0.05 \
 --lambda_e=0.05 \

@@ -42,6 +42,7 @@ class my_gan:
         self.p_loss = m4_BE_GAN_model.pose_loss
         self.s_loss = m4_BE_GAN_model.shape_loss
         self.e_loss = m4_BE_GAN_model.expr_loss
+        self.id_loss = m4_BE_GAN_model.id_loss
 
         self.image_fake_sum = m4_BE_GAN_model.image_fake_sum
         self.global_step = m4_BE_GAN_model.global_step
@@ -80,6 +81,12 @@ class my_gan:
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
 
+        # load face_model
+        t_vars = tf.trainable_variables()
+        face_vars = [var for var in t_vars if 'facenet' in var.name]
+        face_model_saver = tf.train.Saver(face_vars)
+        self.load_face_model(face_model_saver,self.cfg.face_model_dir, self.cfg.face_model_name)
+        # load 3DMM model
         self.load_expr_shape_pose_param()
 
         # load all train param
@@ -125,8 +132,9 @@ class my_gan:
                                                                   self.expr_real:expr_real_norm})
 
                 # get loss
-                d_loss, g_loss, p_loss, s_loss, e_loss, counter = self.sess.run(
-                                                        [self.d_loss, self.g_loss,self.p_loss,self.s_loss,self.e_loss, self.global_step],
+                d_loss, g_loss, p_loss, s_loss, e_loss, id_loss, counter = self.sess.run(
+                                                        [self.d_loss, self.g_loss,self.p_loss,self.s_loss,self.e_loss,
+                                                         self.id_loss, self.global_step],
                                                         feed_dict={self.images: batch_images,
                                                                    self.z: batch_z,
                                                                    self.shape_real: shape_real_norm,
@@ -156,8 +164,9 @@ class my_gan:
                 endtime = datetime.datetime.now()
                 timediff = (endtime - starttime).total_seconds()
                 print(
-                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.6f, s_loss:%.6f, e_loss；%.6f, k_t: %.6f, Mglobal: %.6f, g_lr: %.5f, d_lr: %.5f" \
-                    % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
+                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.6f, s_loss:%.6f, e_loss；%.6f, id_loss；%.6f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
+                    % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss,
+                       id_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
                 try:
                     if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
                         samples = self.sess.run([self.sampler], feed_dict={self.z: batch_z_G,
@@ -358,6 +367,22 @@ class my_gan:
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
             counter = int(next(re.finditer("(\d+)(?!.*\d)", ckpt_name)).group(0))
             print(" [*] Success to read {}".format(ckpt_name))
+            return True, counter
+        else:
+            print(" [*] Failed to find a checkpoint")
+            return False, 0
+    def load_face_model(self, saver, checkpoint_dir, model_folder_name):
+        import re
+        print(" [*] Reading checkpoints...")
+        checkpoint_dir = os.path.join(checkpoint_dir, model_folder_name)
+
+        ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+            saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+            counter = int(next(re.finditer("(\d+)(?!.*\d)", ckpt_name)).group(0))
+            print(" [*] Success to read {}".format(ckpt_name))
+            time.sleep(3)
             return True, counter
         else:
             print(" [*] Failed to find a checkpoint")
