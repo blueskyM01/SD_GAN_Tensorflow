@@ -11,4 +11,5 @@ python run_this.py \
 --lambda_p=0.1 \
 --lambda_id=1.0 \
 --add_summary_period=100 \
---lr_drop_period=1
+--lr_drop_period=1 \
+--saveimage_idx=500

@@ -164,12 +164,13 @@ class my_gan:
                 endtime = datetime.datetime.now()
                 timediff = (endtime - starttime).total_seconds()
                 print(
-                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.6f, s_loss:%.6f, e_loss；%.6f, id_loss；%.6f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
+                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.5f, s_loss:%.5f, e_loss；%.5f, id_loss；%.5f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
                     % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss,
                        id_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
                 try:
                     if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
-                        samples = self.sess.run([self.sampler], feed_dict={self.z: batch_z_G,
+                        samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images_G,
+                                                                           self.z: batch_z_G,
                                                                            self.shape_real: shape_real_norm_G,
                                                                            self.pose_real: pose_real_norm_G,
                                                                            self.expr_real: expr_real_norm_G})
