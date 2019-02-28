@@ -191,37 +191,61 @@ class my_gan:
         #     print('Mission complete!')
 
     def test(self):
-        print('test starting....')
+        try:
+            self.saver = tf.train.Saver()
+        except:
+            print('one model save error....')
+        try:
+            tf.global_variables_initializer().run()
+        except:
+            tf.initialize_all_variables().run()
 
-        m4_image_save_cv(batch_images_G, '{}/x_fixed4444.jpg'.format(self.cfg.mesh_folder))
-        print('save x_fixed4444.jpg.')
 
-        (Shape_Texture, Expr, Pose) = self.sess.run([self.fc1ls, self.fc1le, self.pose_model],
-                                                    feed_dict={self.images: batch_images_G})
+        # load 3DMM model
+        self.load_expr_shape_pose_param()
 
-        # -------------------------------make .ply file---------------------------------
-        ## Modifed Basel Face Model
-        BFM_path = self.cfg.BaselFaceModel_mod_file_path
-        model = scipy.io.loadmat(BFM_path, squeeze_me=True, struct_as_record=False)
-        model = model["BFM"]
-        faces = model.faces - 1
-        print('> Loaded the Basel Face Model to write the 3D output!')
+        # load all train param
+        could_load, counter = self.load(self.cfg.checkpoint_dir, self.cfg.dataset_name)
+        if could_load:
+            print(" [*] Load SUCCESS")
+        else:
+            print(" [!] Load failed...")
 
-        for i in range(self.cfg.batch_size * self.cfg.num_gpus):
-            outFile = self.cfg.mesh_folder + '/' + 'haha' + '_' + str(i)
 
-            Pose[i] = np.reshape(Pose[i], [-1])
-            Shape_Texture[i] = np.reshape(Shape_Texture[i], [-1])
-            Shape = Shape_Texture[i][0:99]
-            Shape = np.reshape(Shape, [-1])
-            Expr[i] = np.reshape(Expr[i], [-1])
+        one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir,
+                                                self.cfg.dataset_name, self.cfg.batch_size, self.cfg.epoch)
+        batch_idxs = dataset_size // (self.cfg.batch_size)
+        batch_images_G, batch_labels_G = self.sess.run(one_element)
+        batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
+        (shape_real_norm_G, expr_real_norm_G, pose_real_norm_G) = self.new_sess.run(
+                                                            [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
+                                                            feed_dict={self.images_new_graph: batch_images_G})
+        counter = 0
 
-            #########################################
-            ### Save 3D shape information (.ply file)
+        for idx in range(1, batch_idxs + 1):
+            counter += 1
 
-            # Shape + Expression + Pose
-            SEP, TEP = utils_3DMM.projectBackBFM_withEP(model, Shape_Texture[i], Expr[i], Pose[i])
-            utils_3DMM.write_ply_textureless(outFile + '_Shape_Expr_Pose.ply', SEP, faces)
+            batch_images, batch_labels = self.sess.run(one_element)
+            batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
+                np.float32)
+            if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
+                for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
+                    batch_images = np.append(batch_images,batch_images[0:1],axis=0)
+
+            (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
+                                                                [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
+                                                                feed_dict={self.images_new_graph: batch_images})
+
+
+            [samples] = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
+                                                               self.z: batch_z,
+                                                               self.shape_real: shape_real_norm,
+                                                               self.pose_real: pose_real_norm,
+                                                               self.expr_real: expr_real_norm})
+            m4_image_save_cv(samples, '{}/test_{}.jpg'.format(self.cfg.test_sample_save_dir,counter))
+            print('save test_{}.jpg image.'.format(counter))
+            m4_image_save_cv(batch_images, '{}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
+            print('save {}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
 
 
 

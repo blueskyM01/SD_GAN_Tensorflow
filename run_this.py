@@ -106,7 +106,8 @@ if __name__ == '__main__':
 
             my_gan.train()
         else:
-            # print('only train model, please set is_train==True')
-            if not os.path.exists():
-                os.makedirs(cfg.mesh_folder)
+            print('test starting ....')
+            time.sleep(3)
+            if not os.path.exists(cfg.test_sample_save_dir):
+                os.makedirs(cfg.test_sample_save_dir)
             my_gan.test()
