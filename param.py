@@ -22,27 +22,29 @@ savemodel_period = 40
 '''
 
 # -----------------------------m4_BE_GAN_network-----------------------------
-gpu_assign = '0'
+gpu_assign = '1'
 is_train = True
-save_dir = '/with all/'
+save_dir = '/train on ms1s/'
 dataset_dir = '/media/yang/F/DataSet/Face'
-dataset_name = 'CASIA-WebFace_align'
+dataset_name = 'ms1s_align'
 datalabel_dir = '/media/yang/F/DataSet/Face/Label'
-datalabel_name = 'CASIA-WebFace_align.txt'
-face_model_dir='/media/yang/F/DataSet/Face/param_of_SD_GAN/face_model'
-face_model_name='CASIA-WebFace_align'
+datalabel_name = 'MS-Celeb-1M_clean_list.txt'
+face_model_dir='/media/yang/F/DataSet/Face/param_of_SD_GAN/face_model_ms1s'
+face_model_name='ms1s_align'
+BE_GAN_model_dir = '/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/checkpoint'
+BE_GAN_model_name = 'CASIA-WebFace_align'
 log_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'logs'  # need to change
 sampel_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'samples'  # need to change
 checkpoint_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'checkpoint'  # need to change
 test_sample_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'test_sample'  # need to change
 num_gpus = 1
-epoch = 30
+epoch = 10
 batch_size = 16  # need to change
 z_dim = 128 # or 128
 conv_hidden_num = 128 # 128
 data_format = 'NHWC'
-g_lr = 0.00008  # need to change
-d_lr = 0.00008  # need to change
+g_lr = 0.00002  # need to change
+d_lr = 0.00002  # need to change
 lr_lower_boundary = 0.00002
 gamma = 0.5
 lambda_k = 0.01

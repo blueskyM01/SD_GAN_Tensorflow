@@ -64,7 +64,8 @@ class m4_BE_GAN_network:
                                                             + self.cfg.lambda_p * self.pose_loss + self.cfg.lambda_id * self.id_loss
 
 
-        self.image_fake_sum = tf.summary.image('image_fake', self.G, 3)
+        image_fake_sum = tf.summary.image('image_fake', self.G, 3)
+        image_real_sum = tf.summary.image('image_real', images, 3)
         g_loss_sum = tf.summary.scalar('g_loss', self.g_loss)
         d_loss_sum = tf.summary.scalar('d_loss', self.d_loss)
         shape_loss_sum = tf.summary.scalar('shape_loss', self.shape_loss)
@@ -224,7 +225,6 @@ class m4_BE_GAN_network:
             print('Load ' + self.cfg.Shape_Model_file_path + ' successful....')
         except:
             raise Exception('Load ' + self.cfg.Shape_Model_file_path + ' failed....')
-
         # load our expression net model
         try:
             load_path = self.cfg.Expression_Model_file_path
@@ -232,6 +232,7 @@ class m4_BE_GAN_network:
             print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
         except:
             raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
+        time.sleep(3)
 
     def m4_ID_Extractor(self, images, reuse=False):
         with tf.variable_scope('facenet',reuse=reuse) as scope:
@@ -239,10 +240,10 @@ class m4_BE_GAN_network:
             prelogits, _ = network.inference(images, 1.0,
                                              phase_train=False, bottleneck_layer_size=128,
                                              weight_decay=0.0005)
-            logits = slim.fully_connected(prelogits, 10575, activation_fn=None,
-                                          weights_initializer=slim.initializers.xavier_initializer(),
-                                          weights_regularizer=slim.l2_regularizer(0.0000),
-                                          scope='Logits', reuse=reuse)
+            # logits = slim.fully_connected(prelogits, 10575, activation_fn=None,
+            #                               weights_initializer=slim.initializers.xavier_initializer(),
+            #                               weights_regularizer=slim.l2_regularizer(0.0000),
+            #                               scope='Logits', reuse=reuse)
 
             embeddings = tf.nn.l2_normalize(prelogits, 1, 1e-10, name='embeddings') # this is we need id feat
         return embeddings

@@ -44,7 +44,6 @@ class my_gan:
         self.e_loss = m4_BE_GAN_model.expr_loss
         self.id_loss = m4_BE_GAN_model.id_loss
 
-        self.image_fake_sum = m4_BE_GAN_model.image_fake_sum
         self.global_step = m4_BE_GAN_model.global_step
         self.sampler = m4_BE_GAN_model.G
         self.k_update = m4_BE_GAN_model.k_update
@@ -80,6 +79,9 @@ class my_gan:
                                                            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))),
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
+
+        # load pre_model
+        could_load, counter = self.load(self.cfg.BE_GAN_model_dir, self.cfg.BE_GAN_model_name)
 
         # load face_model
         t_vars = tf.trainable_variables()
@@ -164,7 +166,7 @@ class my_gan:
                 endtime = datetime.datetime.now()
                 timediff = (endtime - starttime).total_seconds()
                 print(
-                    "Epoch: [%2d/%2d] [%5d/%5d] time: %3.2f, d_loss: %.4f, g_loss: %.4f, p_loss:%.5f, s_loss:%.5f, e_loss；%.5f, id_loss；%.5f, k_t: %.6f, Mglobal: %.6f, g_lr: %.6f, d_lr: %.6f" \
+                    "Epoch: [%2d/%2d] [%5d/%5d] time:%3.2f, d_loss:%.4f, g_loss:%.4f, p_loss:%.5f, s_loss:%.5f, e_loss:%.5f, id_loss:%.5f, k_t:%.6f, Mglobal:%.6f, g_lr:%.6f, d_lr:%.6f" \
                     % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss,
                        id_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
                 try:
@@ -180,7 +182,7 @@ class my_gan:
                     print('one picture save error....')
 
                 try:
-                    if epoch % self.cfg.savemodel_period == 0 and idx == (batch_idxs - 1):
+                    if epoch % self.cfg.savemodel_period == 0 and idx % 10000 == 0:
                         self.save(self.cfg.checkpoint_dir, epoch, self.cfg.dataset_name)
                         print('one param model saved....')
                 except:
@@ -392,9 +394,11 @@ class my_gan:
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
             counter = int(next(re.finditer("(\d+)(?!.*\d)", ckpt_name)).group(0))
             print(" [*] Success to read {}".format(ckpt_name))
+            time.sleep(3)
             return True, counter
         else:
             print(" [*] Failed to find a checkpoint")
+            time.sleep(3)
             return False, 0
     def load_face_model(self, saver, checkpoint_dir, model_folder_name):
         import re
@@ -411,6 +415,7 @@ class my_gan:
             return True, counter
         else:
             print(" [*] Failed to find a checkpoint")
+            time.sleep(3)
             return False, 0
 
     def load_expr_shape_pose_param(self):
@@ -445,4 +450,4 @@ class my_gan:
             print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
         except:
             raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
-        # time.sleep(10)
+            time.sleep(3)

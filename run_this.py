@@ -26,6 +26,9 @@ parser.add_argument("--datalabel_dir", default=param.datalabel_dir, type=str, he
 parser.add_argument("--datalabel_name", default=param.datalabel_name, type=str, help="Train data label name")
 parser.add_argument("--face_model_dir", default=param.face_model_dir, type=str, help="face model dir")
 parser.add_argument("--face_model_name", default=param.face_model_name, type=str, help="face model name")
+parser.add_argument("--BE_GAN_model_dir", default=param.BE_GAN_model_dir, type=str, help="BE_GAN_model_dir")
+parser.add_argument("--BE_GAN_model_name", default=param.BE_GAN_model_name, type=str, help="BE_GAN_model_name")
+
 parser.add_argument("--log_dir", default=param.log_dir, type=str, help="Train data label name")
 parser.add_argument("--sampel_save_dir", default=param.sampel_save_dir, type=str, help="sampel save dir")
 parser.add_argument("--checkpoint_dir", default=param.checkpoint_dir, type=str, help="model save dir")

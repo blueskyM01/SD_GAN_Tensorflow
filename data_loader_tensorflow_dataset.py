@@ -54,7 +54,7 @@ def m4_parse_function(filename, label):
     image_string = tf.read_file(filename)
     # image_decoded = tf.image.decode_image(image_string)
     # image_decoded = tf.image.decode_jpeg(image_string,3)
-    image_decoded = tf.image.decode_png(image_string, 3)
+    image_decoded = tf.image.decode_jpeg(image_string, 3)
     image_decoded = tf.image.convert_image_dtype(image_decoded,dtype=tf.float32) * 2.0 - 1.0
     image_resized = tf.image.resize_images(image_decoded, [128, 128])
     # label = tf.one_hot(label, 10575)
