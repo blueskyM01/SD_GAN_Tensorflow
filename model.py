@@ -4,6 +4,7 @@ import os
 import datetime
 from utils import *
 from ops import *
+from dataReader import *
 from networks import *
 from data_loader_tensorflow_dataset import *
 import time
@@ -99,8 +100,14 @@ class my_gan:
             print(" [!] Load failed...")
 
 
-        one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir,
-                                                self.cfg.dataset_name, self.cfg.batch_size, self.cfg.epoch)
+        # one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir,
+        #                                         self.cfg.dataset_name, self.cfg.batch_size, self.cfg.epoch)
+
+
+        tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
+        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
+
+
         batch_idxs = dataset_size // (self.cfg.batch_size)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
@@ -111,7 +118,7 @@ class my_gan:
         m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
         print('save x_fixed.jpg.')
         # try:
-        for epoch in range(1,self.cfg.epoch+1):
+        for epoch in range(2,self.cfg.epoch+1):
             for idx in range(1, batch_idxs + 1):
                 starttime = datetime.datetime.now()
                 batch_images, batch_labels = self.sess.run(one_element)

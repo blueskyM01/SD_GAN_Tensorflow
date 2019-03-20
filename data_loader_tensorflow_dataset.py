@@ -25,7 +25,7 @@ def data_loader(label_dir,label_name,dataset_dir,dataset_name,batch_size=16,epoc
         dataset = tf.contrib.data.Dataset.from_tensor_slices((filenames, filelabels))
 
     dataset = dataset.map(m4_parse_function)
-    dataset = dataset.shuffle(buffer_size=10000).batch(batch_size).repeat(epoch)
+    dataset = dataset.shuffle(buffer_size=buffer_size).batch(batch_size).repeat(epoch)
     iterator = dataset.make_one_shot_iterator()
     one_element = iterator.get_next()
     return one_element,dataset_size

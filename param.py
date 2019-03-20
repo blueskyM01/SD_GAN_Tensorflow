@@ -24,15 +24,16 @@ savemodel_period = 40
 # -----------------------------m4_BE_GAN_network-----------------------------
 gpu_assign = '1'
 is_train = True
-save_dir = '/train on ms1s/'
+save_dir = '/train on ms1s____k/'
 dataset_dir = '/media/yang/F/DataSet/Face'
 dataset_name = 'ms1s_align'
 datalabel_dir = '/media/yang/F/DataSet/Face/Label'
 datalabel_name = 'MS-Celeb-1M_clean_list.txt'
-face_model_dir='/media/yang/F/DataSet/Face/param_of_SD_GAN/face_model_ms1s'
+face_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/face_model_ms1s_continue/checkpoint'
 face_model_name='ms1s_align'
-BE_GAN_model_dir = '/media/yang/F/ubuntu/SD_GAN_Result/with all lambdak=0.01/checkpoint'
-BE_GAN_model_name = 'CASIA-WebFace_align'
+tfrecord_path = '/media/yang/F/DataSet/Face/ms1s_tfrecords'
+BE_GAN_model_dir = '/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue/checkpoint'
+BE_GAN_model_name = 'ms1s_align'
 log_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'logs'  # need to change
 sampel_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'samples'  # need to change
 checkpoint_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'checkpoint'  # need to change

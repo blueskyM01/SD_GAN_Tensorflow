@@ -1,10 +1,10 @@
 python run_this.py \
 --gpu_assign='1' \
 --is_train=True \
---log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s/logs' \
---sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s/samples' \
---checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s/checkpoint' \
---test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s/test_sample' \
+--log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/logs' \
+--sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/samples' \
+--checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/checkpoint' \
+--test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/test_sample' \
 --lambda_k=0.01 \
 --lambda_s=0.05 \
 --lambda_e=0.05 \
