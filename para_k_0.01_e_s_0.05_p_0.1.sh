@@ -1,6 +1,6 @@
 python run_this.py \
---gpu_assign='1' \
---is_train=True \
+--gpu_assign='0' \
+--is_train='' \
 --log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/logs' \
 --sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/samples' \
 --checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/checkpoint' \

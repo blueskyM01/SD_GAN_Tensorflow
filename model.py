@@ -108,7 +108,8 @@ class my_gan:
         one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
 
 
-        batch_idxs = dataset_size // (self.cfg.batch_size)
+        # batch_idxs = dataset_size // (self.cfg.batch_size)
+        batch_idxs = 50400 * 40 // (self.cfg.batch_size)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
         (shape_real_norm_G, expr_real_norm_G, pose_real_norm_G) = self.new_sess.run(
@@ -220,41 +221,45 @@ class my_gan:
         else:
             print(" [!] Load failed...")
 
+        tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
+        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
 
-        one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir,
-                                                self.cfg.dataset_name, self.cfg.batch_size, self.cfg.epoch)
-        batch_idxs = dataset_size // (self.cfg.batch_size)
-        batch_images_G, batch_labels_G = self.sess.run(one_element)
-        batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
-        (shape_real_norm_G, expr_real_norm_G, pose_real_norm_G) = self.new_sess.run(
-                                                            [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
-                                                            feed_dict={self.images_new_graph: batch_images_G})
+        # batch_idxs = dataset_size // (self.cfg.batch_size)
+        batch_idxs = 50400 * 40 // (self.cfg.batch_size)
         counter = 0
+        # try:
+        for epoch in range(1, self.cfg.epoch + 1):
+            for idx in range(1, batch_idxs + 1):
+                counter += 1
+                batch_images, batch_labels = self.sess.run(one_element)
+                batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
+                    np.float32)
+                if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
+                    for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
+                        batch_images = np.append(batch_images, batch_images[0:1], axis=0)
 
-        for idx in range(1, batch_idxs + 1):
-            counter += 1
+                (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
+                    [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
+                    feed_dict={self.images_new_graph: batch_images})
 
-            batch_images, batch_labels = self.sess.run(one_element)
-            batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
-                np.float32)
-            if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
-                for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
-                    batch_images = np.append(batch_images,batch_images[0:1],axis=0)
+                try:
+                    samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
+                                                                       self.z: batch_z,
+                                                                       self.shape_real: shape_real_norm,
+                                                                       self.pose_real: pose_real_norm,
+                                                                       self.expr_real: expr_real_norm})
+                    m4_image_save_cv(samples[0], '{}/generate_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
+                    print('save generate_{}.jpg image.'.format(counter))
+                    m4_image_save_cv(batch_images, '{}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
+                    print('save original_{}.jpg image.'.format(counter))
 
-            (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
-                                                                [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
-                                                                feed_dict={self.images_new_graph: batch_images})
+                except:
+                    print('one picture save error....')
 
 
-            [samples] = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
-                                                               self.z: batch_z,
-                                                               self.shape_real: shape_real_norm,
-                                                               self.pose_real: pose_real_norm,
-                                                               self.expr_real: expr_real_norm})
-            m4_image_save_cv(samples, '{}/test_{}.jpg'.format(self.cfg.test_sample_save_dir,counter))
-            print('save test_{}.jpg image.'.format(counter))
-            m4_image_save_cv(batch_images, '{}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
-            print('save {}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
+        # except:
+        #     print('Mission complete!')
+
 
 
 
