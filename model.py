@@ -119,7 +119,7 @@ class my_gan:
         m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
         print('save x_fixed.jpg.')
         # try:
-        for epoch in range(2,self.cfg.epoch+1):
+        for epoch in range(1,self.cfg.epoch+1):
             for idx in range(1, batch_idxs + 1):
                 starttime = datetime.datetime.now()
                 batch_images, batch_labels = self.sess.run(one_element)
