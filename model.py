@@ -17,8 +17,9 @@ class my_gan:
     def __init__(self, sess, cfg):
         self.sess = sess
         self.cfg = cfg
-        self.images = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3], name='real_image')
-        self.labels = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 10575], name='id')
+        self.images = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size * self.cfg.num_gpus, 128, 128, 3],
+                                     name='real_image')
+        self.labels = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size * self.cfg.num_gpus, 10575], name='id')
         self.z = tf.placeholder(dtype=tf.float32, shape=[None, self.cfg.z_dim], name='noise_z')
 
         m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg)
@@ -82,13 +83,14 @@ class my_gan:
             print(" [!] Load failed...")
 
         tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
-        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
+        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size * self.cfg.num_gpus,
+                                                                    epoch=self.cfg.epoch)
 
 
-        # batch_idxs = dataset_size // (self.cfg.batch_size)
-        batch_idxs = 50400 * 40 // (self.cfg.batch_size)
+        # batch_idxs = dataset_size // (self.cfg.batch_size * self.cfg.num_gpus)
+        batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
-        batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
+        batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
 
 
         m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
