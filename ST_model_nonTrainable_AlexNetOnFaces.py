@@ -26,10 +26,10 @@ class Pose_Estimation(object):
     self.std_labels = std_labels
     #self.train_mean_vec = train_mean_vec
 
-  def _build_graph(self):
+  def _build_graph(self, reuse):
     """Build a whole graph for the model."""
     self.global_step = tf.Variable(0, name='global_step', trainable=False)
-    self._build_model()
+    self._build_model(reuse=reuse)
     
     if self.mode == 'train':
       self._build_train_op()
@@ -40,20 +40,20 @@ class Pose_Estimation(object):
     """Map a stride scalar to the stride array for tf.nn.conv2d."""
     return [1, stride, stride, 1]
 
-  def _build_model(self):
+  def _build_model(self, reuse):
     """Build the core model within the graph."""
    
-    with tf.variable_scope('Spatial_Transformer'):
+    with tf.variable_scope('Spatial_Transformer', reuse=reuse):
       x = self._images
       x = tf.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32)) # the image should be 227 x 227 x 3
       
       self.resized_img = x
-      theta = self._ST('ST2', x, 3, (16,16), 3, 16, self._stride_arr(1))
+      theta = self._ST('ST2', x, 3, (16,16), 3, 16, self._stride_arr(1),reuse=reuse)
       #print "*** ", x.get_shape()
    
 
   
-    with tf.variable_scope('costs'):
+    with tf.variable_scope('costs', reuse=reuse):
       self.predictions = theta
       self.preds_unNormalized = theta * (self.std_labels + 0.000000000000000001) + self.mean_labels
       pred_dim1 = theta.get_shape()[0]
@@ -95,10 +95,10 @@ class Pose_Estimation(object):
 
 
 
-  def _ST(self, name, x, channel_x, out_size, filter_size, out_filters, strides):
+  def _ST(self, name, x, channel_x, out_size, filter_size, out_filters, strides,reuse):
     """ Spatial Transformer. """
 
-    with tf.variable_scope(name):
+    with tf.variable_scope(name, reuse=reuse):
 
       # zero-mean input [B,G,R]: [93.5940, 104.7624, 129.1863] --> provided by vgg-face
       """
@@ -108,11 +108,11 @@ class Pose_Estimation(object):
       """
 
       # conv1
-      with tf.name_scope('conv1') as scope:
+      with tf.variable_scope('conv1', reuse=reuse) as scope:
         #conv(11, 11, 96, 4, 4, padding='VALID', name='conv1')
         k_h = 11; k_w = 11; c_o = 96; s_h = 4; s_w = 4
-        conv1W = tf.Variable(self.net_data["conv1"]["weights"], trainable=False, name='W')
-        conv1b = tf.Variable(self.net_data["conv1"]["biases"], trainable=False, name='baises')
+        conv1W = tf.get_variable(initializer=self.net_data["conv1"]["weights"], trainable=False, name='W')
+        conv1b = tf.get_variable(initializer=self.net_data["conv1"]["biases"], trainable=False, name='baises')
         conv1_in = self.conv(x, conv1W, conv1b, k_h, k_w, c_o, s_h, s_w, padding="SAME", group=1)
         conv1 = tf.nn.relu(conv1_in, name='conv1')
         #print x.get_shape(), conv1.get_shape()
@@ -135,11 +135,11 @@ class Pose_Estimation(object):
 
 
       # conv2
-      with tf.name_scope('conv2') as scope:
+      with tf.variable_scope('conv2', reuse=reuse) as scope:
         #conv(5, 5, 256, 1, 1, group=2, name='conv2')
         k_h = 5; k_w = 5; c_o = 256; s_h = 1; s_w = 1; group = 2
-        conv2W = tf.Variable(self.net_data["conv2"]["weights"], trainable=False, name='W')
-        conv2b = tf.Variable(self.net_data["conv2"]["biases"], trainable=False, name='baises')
+        conv2W = tf.get_variable(initializer=self.net_data["conv2"]["weights"], trainable=False, name='W')
+        conv2b = tf.get_variable(initializer=self.net_data["conv2"]["biases"], trainable=False, name='baises')
         conv2_in = self.conv(lrn1, conv2W, conv2b, k_h, k_w, c_o, s_h, s_w, padding="SAME", group=group)
         conv2 = tf.nn.relu(conv2_in, name='conv2')
         #print conv2.get_shape(), self.net_data["conv2"]["weights"].shape, self.net_data["conv2"]["biases"].shape
@@ -167,21 +167,21 @@ class Pose_Estimation(object):
         
 
       # conv3                                                                                                                                   
-      with tf.name_scope('conv3') as scope:
+      with tf.variable_scope('conv3', reuse=reuse) as scope:
         #conv(3, 3, 384, 1, 1, name='conv3')
         k_h = 3; k_w = 3; c_o = 384; s_h = 1; s_w = 1; group = 1
-        conv3W = tf.Variable(self.net_data["conv3"]["weights"], trainable=False, name='W')
-        conv3b = tf.Variable(self.net_data["conv3"]["biases"], trainable=False, name='baises')
+        conv3W = tf.get_variable(initializer=self.net_data["conv3"]["weights"], trainable=False, name='W')
+        conv3b = tf.get_variable(initializer=self.net_data["conv3"]["biases"], trainable=False, name='baises')
         conv3_in = self.conv(lrn2, conv3W, conv3b, k_h, k_w, c_o, s_h, s_w, padding="SAME", group=group)
         conv3 = tf.nn.relu(conv3_in, name='conv3')
         #print conv3.get_shape(), self.net_data["conv3"]["weights"].shape, self.net_data["conv3"]["biases"].shape
     
       # conv4                                                                                                                                                            
-      with tf.name_scope('conv4') as scope:
+      with tf.variable_scope('conv4', reuse=reuse) as scope:
         #conv(3, 3, 384, 1, 1, group=2, name='conv4')
         k_h = 3; k_w = 3; c_o = 384; s_h = 1; s_w = 1; group = 2
-        conv4W = tf.Variable(self.net_data["conv4"]["weights"], trainable=False, name='W')
-        conv4b = tf.Variable(self.net_data["conv4"]["biases"], trainable=False, name='baises')
+        conv4W = tf.get_variable(initializer=self.net_data["conv4"]["weights"], trainable=False, name='W')
+        conv4b = tf.get_variable(initializer=self.net_data["conv4"]["biases"], trainable=False, name='baises')
         conv4_in = self.conv(conv3, conv4W, conv4b, k_h, k_w, c_o, s_h, s_w, padding="SAME", group=group)
         conv4 = tf.nn.relu(conv4_in, name='conv4')
         #print conv4.get_shape()
@@ -189,11 +189,11 @@ class Pose_Estimation(object):
         self.conv4 = conv4
 
       # conv5                                                                                                                                             
-      with tf.name_scope('conv5') as scope:
+      with tf.variable_scope('conv5', reuse=reuse) as scope:
         #conv(3, 3, 256, 1, 1, group=2, name='conv5')
         k_h = 3; k_w = 3; c_o = 256; s_h = 1; s_w = 1; group = 2
-        conv5W = tf.Variable(self.net_data["conv5"]["weights"], trainable=False, name='W')
-        conv5b = tf.Variable(self.net_data["conv5"]["biases"], trainable=False, name='baises')
+        conv5W = tf.get_variable(initializer=self.net_data["conv5"]["weights"], trainable=False, name='W')
+        conv5b = tf.get_variable(initializer=self.net_data["conv5"]["biases"], trainable=False, name='baises')
         self.conv5b = conv5b
         conv5_in = self.conv(conv4, conv5W, conv5b, k_h, k_w, c_o, s_h, s_w, padding="SAME", group=group)
         conv5 = tf.nn.relu(conv5_in, name='conv5')
@@ -209,10 +209,10 @@ class Pose_Estimation(object):
         
       
       # fc6
-      with tf.variable_scope('fc6') as scope:
+      with tf.variable_scope('fc6', reuse=reuse) as scope:
         #fc(4096, name='fc6')
-        fc6W = tf.Variable(self.net_data["fc6"]["weights"], trainable=False, name='W')
-        fc6b = tf.Variable(self.net_data["fc6"]["biases"], trainable=False, name='baises')
+        fc6W = tf.get_variable(initializer=self.net_data["fc6"]["weights"], trainable=False, name='W')
+        fc6b = tf.get_variable(initializer=self.net_data["fc6"]["biases"], trainable=False, name='baises')
         self.fc6W = fc6W
         self.fc6b = fc6b
         fc6 = tf.nn.relu_layer(tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))]), fc6W, fc6b, name='fc6')
@@ -221,10 +221,10 @@ class Pose_Estimation(object):
           fc6 = tf.nn.dropout(fc6, self.keep_rate_fc6, name='fc6_dropout')
             
       # fc7 
-      with tf.variable_scope('fc7') as scope:
+      with tf.variable_scope('fc7', reuse=reuse) as scope:
         #fc(4096, name='fc7')
-        fc7W = tf.Variable(self.net_data["fc7"]["weights"], trainable=False, name='W')
-        fc7b = tf.Variable(self.net_data["fc7"]["biases"], trainable=False, name='baises')
+        fc7W = tf.get_variable(initializer=self.net_data["fc7"]["weights"], trainable=False, name='W')
+        fc7b = tf.get_variable(initializer=self.net_data["fc7"]["biases"], trainable=False, name='baises')
         self.fc7b = fc7b
         fc7 = tf.nn.relu_layer(fc6, fc7W, fc7b, name='fc7')
         #print fc7.get_shape()
@@ -232,15 +232,15 @@ class Pose_Estimation(object):
           fc7 = tf.nn.dropout(fc7, self.keep_rate_fc7, name='fc7_dropout')
                                                                                                    
       # fc8  
-      with tf.variable_scope('fc8') as scope:
+      with tf.variable_scope('fc8', reuse=reuse) as scope:
        
         # Move everything into depth so we can perform a single matrix multiplication.                            
         fc7 = tf.reshape(fc7, [self.batch_size, -1])
         dim = fc7.get_shape()[1].value
         #print "fc7 dim:\n"
         #print fc7.get_shape(), dim
-        fc8W = tf.Variable(tf.random_normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')                                                                    
-        fc8b = tf.Variable(tf.zeros([self.labels.shape[1]]), trainable=False, name='baises')                                                                                                      
+        fc8W = tf.get_variable(initializer=tf.random_normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')
+        fc8b = tf.get_variable(initializer=tf.zeros([self.labels.shape[1]]), trainable=False, name='baises')
         self.fc8b = fc8b
         theta = tf.nn.xw_plus_b(fc7, fc8W, fc8b)  
 

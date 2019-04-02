@@ -59,7 +59,7 @@ class m4_3DMM:
         # except:
         #     raise Exception('Load ' + self.cfg.ThreeDMM_shape_mean_file_path + ' failed....')
 
-    def extract_PSE_feats(self, x):
+    def extract_PSE_feats(self, x, reuse=False):
         '''
         :param x: x format is RGB and is value range is [-1,1].
         :return: fc1ls: shape, fc1le: expression, pose_model.preds_unNormalized: pose
@@ -96,7 +96,7 @@ class m4_3DMM:
 
         pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, self.cfg.batch_size,
                                                 self.mean_labels, self.std_labels)
-        pose_model._build_graph()
+        pose_model._build_graph(reuse=reuse)
         self.pose = pose_model.preds_unNormalized
         del net_data
 
@@ -112,7 +112,7 @@ class m4_3DMM:
         mean = tf.cast(mean, 'float32')
         x2 = x2 - mean
 
-        with tf.variable_scope('shapeCNN'):
+        with tf.variable_scope('shapeCNN', reuse=reuse):
             net_shape = resnet101_shape({'input': x2}, trainable=True)
             pool5 = net_shape.layers['pool5']
             pool5 = tf.squeeze(pool5)
@@ -126,14 +126,16 @@ class m4_3DMM:
             ini_weights_shape = npzfile['ini_weights_shape']
             ini_biases_shape = npzfile['ini_biases_shape']
             with tf.variable_scope('shapeCNN_fc1'):
-                fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048, -1]), trainable=True, name='weights')
-                fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
+                # fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048, -1]), trainable=True, name='weights')
+                # fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
+                fc1ws = tf.get_variable(initializer=tf.reshape(ini_weights_shape, [2048, -1]), trainable=True, name='weights')
+                fc1bs = tf.get_variable(initializer=tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
                 self.fc1ls = tf.nn.bias_add(tf.matmul(pool5, fc1ws), fc1bs)
 
         ###################
         # Expression CNN
         ###################
-        with tf.variable_scope('exprCNN'):
+        with tf.variable_scope('exprCNN', reuse=reuse):
             net_expr = resnet101_expr({'input': x2}, trainable=True)
             pool5 = net_expr.layers['pool5']
             pool5 = tf.squeeze(pool5)
@@ -149,8 +151,10 @@ class m4_3DMM:
             # time.sleep(30)
 
             with tf.variable_scope('exprCNN_fc1'):
-                fc1we = tf.Variable(tf.reshape(ini_weights_expr, [2048, 29]), trainable=True, name='weights')
-                fc1be = tf.Variable(tf.reshape(ini_biases_expr, [29]), trainable=True, name='biases')
+                # fc1we = tf.Variable(tf.reshape(ini_weights_expr, [2048, 29]), trainable=True, name='weights')
+                # fc1be = tf.Variable(tf.reshape(ini_biases_expr, [29]), trainable=True, name='biases')
+                fc1we = tf.get_variable(initializer=tf.reshape(ini_weights_expr, [2048, 29]), trainable=True, name='weights')
+                fc1be = tf.get_variable(initializer=tf.reshape(ini_biases_expr, [29]), trainable=True, name='biases')
                 self.fc1le = tf.nn.bias_add(tf.matmul(pool5, fc1we), fc1be)
 
 

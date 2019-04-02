@@ -11,10 +11,10 @@ import importlib
 #---------------------------------------------------------------------------
 slim = tf.contrib.slim
 class m4_BE_GAN_network:
-    def __init__(self, sess, cfg, new_graph):
+    def __init__(self, sess, cfg):
         self.sess = sess
         self.cfg = cfg
-        self.new_graph = new_graph
+        # self.new_graph = new_graph
         # self.batch_idx = batch_idx
         self.global_step = tf.Variable(0, name='global_step', trainable=False)
         self.conv_hidden_num = cfg.conv_hidden_num
@@ -24,8 +24,11 @@ class m4_BE_GAN_network:
         self.lambda_k = self.cfg.lambda_k
         self.g_lr = tf.Variable(self.cfg.g_lr, name='g_lr')
         self.d_lr = tf.Variable(self.cfg.d_lr, name='d_lr')
+        self.expr_shape_pose = ESP.m4_3DMM(self.cfg)
 
-    def build_model(self, images, labels, z, images_new_graph, shape_real, pose_real, expr_real):
+    def build_model(self, images, labels, z):
+        muti_gpu_reuse_0 = False
+        muti_gpu_reuse_1 = True
         _, height, width, self.channel = \
             self.get_conv_shape(images, self.data_format)
         self.repeat_num = int(np.log2(height)) - 2
@@ -37,23 +40,20 @@ class m4_BE_GAN_network:
         self.op_d = tf.train.AdamOptimizer(learning_rate=self.d_lr)
 
         id_feat_real = self.m4_ID_Extractor(images,reuse=False)
-        self.shape_real_norm, self.expr_real_norm, self.pose_real_norm, self.new_sess = self.model_3DMM_new_graph(
-                                                                                        self.new_graph, images_new_graph) # get real feat
-        z_concat_feat = tf.concat([z, shape_real, pose_real, expr_real, id_feat_real], axis=1)
-
-
-        self.G, self.G_var = self.GeneratorCNN( z_concat_feat, self.conv_hidden_num, self.channel, self.repeat_num, self.data_format, reuse=False)
+        shape_real_norm, expr_real_norm, pose_real_norm = self.model_3DMM_default_graph(self.expr_shape_pose, images, reuse=False)
+        z_concat_feat = tf.concat([z, shape_real_norm, pose_real_norm, expr_real_norm, id_feat_real], axis=1)
+        self.G, self.G_var = self.GeneratorCNN( z_concat_feat, self.conv_hidden_num, self.channel, self.repeat_num, self.data_format,
+                                                reuse=False, name_='generator')
         id_feat_fake = self.m4_ID_Extractor(self.G,reuse=True)
-        shape_fake_norm, expr_fake_norm, pose_fake_norm = self.model_3DMM_default_graph(self.G) # get fake feat
-
-        self.shape_loss = tf.reduce_mean(tf.square(shape_real - shape_fake_norm))
-        self.expr_loss = tf.reduce_mean(tf.square(expr_real - expr_fake_norm))
-        self.pose_loss = tf.reduce_mean(tf.square(pose_real - pose_fake_norm))
+        shape_fake_norm, expr_fake_norm, pose_fake_norm = self.model_3DMM_default_graph(self.expr_shape_pose, self.G,reuse=True) # get fake feat
+        self.shape_loss = tf.reduce_mean(tf.square(shape_real_norm - shape_fake_norm))
+        self.expr_loss = tf.reduce_mean(tf.square(expr_real_norm - expr_fake_norm))
+        self.pose_loss = tf.reduce_mean(tf.square(pose_real_norm - pose_fake_norm))
         self.id_loss = tf.reduce_mean(tf.square(id_feat_real - id_feat_fake))
 
         d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
             tf.concat([self.G, images], 0), self.channel, self.z_dim, self.repeat_num,
-            self.conv_hidden_num, self.data_format)
+            self.conv_hidden_num, self.data_format, name_='discriminator')
         AE_G, AE_x = tf.split(d_out, 2)
 
         self.d_loss_real = tf.reduce_mean(tf.abs(AE_x - images))
@@ -62,8 +62,6 @@ class m4_BE_GAN_network:
         self.d_loss = self.d_loss_real - self.k_t * self.d_loss_fake
         self.g_loss = tf.reduce_mean(tf.abs(AE_G - self.G)) + self.cfg.lambda_s * self.shape_loss + self.cfg.lambda_e * self.expr_loss \
                                                             + self.cfg.lambda_p * self.pose_loss + self.cfg.lambda_id * self.id_loss
-
-
         image_fake_sum = tf.summary.image('image_fake', self.G, 3)
         image_real_sum = tf.summary.image('image_real', images, 3)
         g_loss_sum = tf.summary.scalar('g_loss', self.g_loss)
@@ -104,8 +102,8 @@ class m4_BE_GAN_network:
         variables = tf.contrib.framework.get_variables(vs)
         return out, variables
 
-    def DiscriminatorCNN(self, x, input_channel, z_num, repeat_num, hidden_num, data_format, name_='discriminator'):
-        with tf.variable_scope(name_) as vs:
+    def DiscriminatorCNN(self, x, input_channel, z_num, repeat_num, hidden_num, data_format, reuse=False, name_='discriminator'):
+        with tf.variable_scope(name_, reuse=reuse) as vs:
             # Encoder
             x = slim.conv2d(x, hidden_num, 3, 1, activation_fn=tf.nn.elu, data_format=data_format)
 
@@ -170,28 +168,27 @@ class m4_BE_GAN_network:
         return x
 
 
-    def model_3DMM_new_graph(self, new_graph, images_3DMM):
-        with new_graph.as_default():
-            expr_shape_pose = ESP.m4_3DMM(self.cfg)
-            expr_shape_pose.extract_PSE_feats(images_3DMM)
-            fc1ls_real = expr_shape_pose.fc1ls
-            fc1le_real = expr_shape_pose.fc1le
-            pose_model_real = expr_shape_pose.pose
-            shape_norm = tf.nn.l2_normalize(fc1ls_real,dim=0)
-            expr_norm = tf.nn.l2_normalize(fc1le_real,dim=0)
-            pose_norm = tf.nn.l2_normalize(pose_model_real, dim=0)
+    # def model_3DMM_new_graph(self, new_graph, images_3DMM):
+    #     with new_graph.as_default():
+    #         expr_shape_pose = ESP.m4_3DMM(self.cfg)
+    #         expr_shape_pose.extract_PSE_feats(images_3DMM,reuse=False)
+    #         fc1ls_real = expr_shape_pose.fc1ls
+    #         fc1le_real = expr_shape_pose.fc1le
+    #         pose_model_real = expr_shape_pose.pose
+    #         shape_norm = tf.nn.l2_normalize(fc1ls_real,dim=0)
+    #         expr_norm = tf.nn.l2_normalize(fc1le_real,dim=0)
+    #         pose_norm = tf.nn.l2_normalize(pose_model_real, dim=0)
+    #
+    #         sess_3DMM = tf.Session(graph=new_graph)
+    #         try:
+    #             sess_3DMM.run(tf.global_variables_initializer())
+    #         except:
+    #             sess_3DMM.run(tf.initialize_all_variables())
+    #         self.load_expr_shape_pose_param_new_graph(sess_3DMM)
+    #         return shape_norm, expr_norm, pose_norm, sess_3DMM
 
-            sess_3DMM = tf.Session(graph=new_graph)
-            try:
-                sess_3DMM.run(tf.global_variables_initializer())
-            except:
-                sess_3DMM.run(tf.initialize_all_variables())
-            self.load_expr_shape_pose_param_new_graph(sess_3DMM)
-            return shape_norm, expr_norm, pose_norm, sess_3DMM
-
-    def model_3DMM_default_graph(self,images):
-        expr_shape_pose = ESP.m4_3DMM(self.cfg)
-        expr_shape_pose.extract_PSE_feats(images)
+    def model_3DMM_default_graph(self, expr_shape_pose, images, reuse=False):
+        expr_shape_pose.extract_PSE_feats(images,reuse=reuse)
         fc1ls = expr_shape_pose.fc1ls
         fc1le = expr_shape_pose.fc1le
         pose_model = expr_shape_pose.pose
@@ -201,38 +198,38 @@ class m4_BE_GAN_network:
         return shape_norm, expr_norm, pose_norm
 
 
-    def load_expr_shape_pose_param_new_graph(self, sess):
-        # Add ops to save and restore all the variables.
-        saver_pose = tf.train.Saver(
-            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
-        saver_ini_shape_net = tf.train.Saver(
-            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
-        saver_ini_expr_net = tf.train.Saver(
-            var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
-
-        # Load face pose net model from Chang et al.'ICCVW17
-        try:
-            load_path = self.cfg.fpn_new_model_ckpt_file_path
-            saver_pose.restore(sess, load_path)
-            print('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' successful....')
-        except:
-            raise Exception('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' failed....')
-
-        # load 3dmm shape and texture model from Tran et al.' CVPR2017
-        try:
-            load_path = self.cfg.Shape_Model_file_path
-            saver_ini_shape_net.restore(sess, load_path)
-            print('Load ' + self.cfg.Shape_Model_file_path + ' successful....')
-        except:
-            raise Exception('Load ' + self.cfg.Shape_Model_file_path + ' failed....')
-        # load our expression net model
-        try:
-            load_path = self.cfg.Expression_Model_file_path
-            saver_ini_expr_net.restore(sess, load_path)
-            print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
-        except:
-            raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
-        time.sleep(3)
+    # def load_expr_shape_pose_param_new_graph(self, sess):
+    #     # Add ops to save and restore all the variables.
+    #     saver_pose = tf.train.Saver(
+    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
+    #     saver_ini_shape_net = tf.train.Saver(
+    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
+    #     saver_ini_expr_net = tf.train.Saver(
+    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
+    #
+    #     # Load face pose net model from Chang et al.'ICCVW17
+    #     try:
+    #         load_path = self.cfg.fpn_new_model_ckpt_file_path
+    #         saver_pose.restore(sess, load_path)
+    #         print('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' successful....')
+    #     except:
+    #         raise Exception('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' failed....')
+    #
+    #     # load 3dmm shape and texture model from Tran et al.' CVPR2017
+    #     try:
+    #         load_path = self.cfg.Shape_Model_file_path
+    #         saver_ini_shape_net.restore(sess, load_path)
+    #         print('Load ' + self.cfg.Shape_Model_file_path + ' successful....')
+    #     except:
+    #         raise Exception('Load ' + self.cfg.Shape_Model_file_path + ' failed....')
+    #     # load our expression net model
+    #     try:
+    #         load_path = self.cfg.Expression_Model_file_path
+    #         saver_ini_expr_net.restore(sess, load_path)
+    #         print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
+    #     except:
+    #         raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
+    #     time.sleep(3)
 
     def m4_ID_Extractor(self, images, reuse=False):
         with tf.variable_scope('facenet',reuse=reuse) as scope:

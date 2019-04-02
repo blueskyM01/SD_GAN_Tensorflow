@@ -17,25 +17,12 @@ class my_gan:
     def __init__(self, sess, cfg):
         self.sess = sess
         self.cfg = cfg
-        self.new_graph = tf.Graph()
-
         self.images = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3], name='real_image')
         self.labels = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 10575], name='id')
         self.z = tf.placeholder(dtype=tf.float32, shape=[None, self.cfg.z_dim], name='noise_z')
 
-        self.shape_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 198], name='shape_real')
-        self.pose_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 6], name='pose_real')
-        self.expr_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 29], name='expr_real')
-        # self.id_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128], name='id_real')
-
-        with self.new_graph.as_default():
-            self.images_new_graph = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size, 128, 128, 3],
-                                     name='real_image')
-
-
-        m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg, self.new_graph)
-        m4_BE_GAN_model.build_model(self.images, self.labels, self.z, self.images_new_graph, self.shape_real, self.pose_real,
-                                    self.expr_real)
+        m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg)
+        m4_BE_GAN_model.build_model(self.images, self.labels, self.z)
         self.g_optim = m4_BE_GAN_model.g_optim
         self.d_optim = m4_BE_GAN_model.d_optim
         self.g_loss = m4_BE_GAN_model.g_loss
@@ -57,15 +44,6 @@ class my_gan:
         self.g_lr_ = self.cfg.g_lr
         self.d_lr_ = self.cfg.d_lr
 
-        self.shape_real_norm = m4_BE_GAN_model.shape_real_norm
-        self.expr_real_norm = m4_BE_GAN_model.expr_real_norm
-        self.pose_real_norm = m4_BE_GAN_model.pose_real_norm
-        self.new_sess = m4_BE_GAN_model.new_sess
-
-        # self.shape_norm = m4_BE_GAN_model.shape_norm
-        # self.expr_norm = m4_BE_GAN_model.expr_norm
-        # self.pose_norm = m4_BE_GAN_model.pose_norm
-
     def train(self):
         try:
             self.saver = tf.train.Saver()
@@ -80,6 +58,7 @@ class my_gan:
                                                            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))),
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
+
         # 收集所有训练变量
         t_vars = tf.trainable_variables()
 
@@ -110,9 +89,7 @@ class my_gan:
         batch_idxs = 50400 * 40 // (self.cfg.batch_size)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size, self.cfg.z_dim]).astype(np.float32)
-        (shape_real_norm_G, expr_real_norm_G, pose_real_norm_G) = self.new_sess.run(
-                                                            [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
-                                                            feed_dict={self.images_new_graph: batch_images_G})
+
 
         m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
         print('save x_fixed.jpg.')
@@ -127,45 +104,28 @@ class my_gan:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images,batch_images[0:1],axis=0)
 
-                (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
-                                                                    [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
-                                                                    feed_dict={self.images_new_graph: batch_images})
-
                 # get measure stand
                 k_update, k_t, Mglobal = self.sess.run([self.k_update, self.k_t, self.Mglobal],
                                                        feed_dict={self.images: batch_images,
-                                                                  self.z: batch_z,
-                                                                  self.shape_real:shape_real_norm,
-                                                                  self.pose_real:pose_real_norm,
-                                                                  self.expr_real:expr_real_norm})
+                                                                  self.z: batch_z})
 
                 # get loss
                 d_loss, g_loss, p_loss, s_loss, e_loss, id_loss, counter = self.sess.run(
                                                         [self.d_loss, self.g_loss,self.p_loss,self.s_loss,self.e_loss,
                                                          self.id_loss, self.global_step],
                                                         feed_dict={self.images: batch_images,
-                                                                   self.z: batch_z,
-                                                                   self.shape_real: shape_real_norm,
-                                                                   self.pose_real: pose_real_norm,
-                                                                   self.expr_real: expr_real_norm})
+                                                                   self.z: batch_z})
 
                 # Update learning rate
                 if epoch % self.cfg.lr_drop_period == 0 and idx == (batch_idxs-1):
-
                     _, _, self.g_lr_, self.d_lr_, = self.sess.run([self.g_lr, self.d_lr, self.g_lr_update, self.d_lr_update],
                                                                   feed_dict={self.images: batch_images,
-                                                                             self.z: batch_z,
-                                                                             self.shape_real: shape_real_norm,
-                                                                             self.pose_real: pose_real_norm,
-                                                                             self.expr_real: expr_real_norm})
+                                                                             self.z: batch_z})
                     print('Update learning rate once....')
                 # add to summary
                 if counter % self.cfg.add_summary_period == 0:
                     [merged_] = self.sess.run([merged],feed_dict={self.images: batch_images,
-                                                                  self.z: batch_z,
-                                                                  self.shape_real: shape_real_norm,
-                                                                  self.pose_real: pose_real_norm,
-                                                                  self.expr_real: expr_real_norm})
+                                                                  self.z: batch_z})
                     self.writer.add_summary(merged_, counter)
                     print('add sunmmary once....')
 
@@ -178,10 +138,7 @@ class my_gan:
                 try:
                     if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
                         samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images_G,
-                                                                           self.z: batch_z_G,
-                                                                           self.shape_real: shape_real_norm_G,
-                                                                           self.pose_real: pose_real_norm_G,
-                                                                           self.expr_real: expr_real_norm_G})
+                                                                           self.z: batch_z_G})
                         m4_image_save_cv(samples[0], '{}/train_{}_{}.jpg'.format(self.cfg.sampel_save_dir, epoch, counter))
                         print('save train_{}_{}.jpg image.'.format(epoch, counter))
                 except:
@@ -236,16 +193,9 @@ class my_gan:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images, batch_images[0:1], axis=0)
 
-                (shape_real_norm, expr_real_norm, pose_real_norm) = self.new_sess.run(
-                    [self.shape_real_norm, self.expr_real_norm, self.pose_real_norm],
-                    feed_dict={self.images_new_graph: batch_images})
-
                 try:
                     samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
-                                                                       self.z: batch_z,
-                                                                       self.shape_real: shape_real_norm,
-                                                                       self.pose_real: pose_real_norm,
-                                                                       self.expr_real: expr_real_norm})
+                                                                       self.z: batch_z})
                     m4_image_save_cv(samples[0], '{}/generate_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
                     print('save generate_{}.jpg image.'.format(counter))
                     m4_image_save_cv(batch_images, '{}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
