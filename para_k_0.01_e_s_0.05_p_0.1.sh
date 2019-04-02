@@ -1,10 +1,10 @@
 python run_this.py \
 --gpu_assign='0' \
---is_train='' \
---log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/logs' \
---sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/samples' \
---checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/checkpoint' \
---test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/test_sample' \
+--is_train=Fasle \
+--log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/logs' \
+--sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/samples' \
+--checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/checkpoint' \
+--test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/test_sample' \
 --lambda_k=0.01 \
 --lambda_s=0.05 \
 --lambda_e=0.05 \
@@ -12,4 +12,11 @@ python run_this.py \
 --lambda_id=1.0 \
 --add_summary_period=100 \
 --lr_drop_period=1 \
---saveimage_idx=500
+--saveimage_idx=500 \
+--BE_GAN_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/checkpointooo' \
+--BE_GAN_model_name='ms1s_align' \
+--face_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/face_model_ms1s_continue_1/checkpoint' \
+--face_model_name='ms1s_align' \
+--batch_size=20 \
+--g_lr=0.00008 \
+--d_lr=0.00008
