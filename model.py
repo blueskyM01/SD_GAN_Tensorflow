@@ -80,12 +80,15 @@ class my_gan:
                                                            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))),
                                                            self.sess.graph)
         merged = tf.summary.merge_all()
+        # 收集所有训练变量
+        t_vars = tf.trainable_variables()
 
         # load pre_model
-        could_load, counter = self.load(self.cfg.BE_GAN_model_dir, self.cfg.BE_GAN_model_name)
+        pre_BE_GAN_vars = [var for var in t_vars if 'generator' or 'discriminator' in var.name]
+        pre_BE_GAN_model_saver = tf.train.Saver(pre_BE_GAN_vars)
+        self.pre_BE_GAN_model(pre_BE_GAN_model_saver, self.cfg.BE_GAN_model_dir, self.cfg.BE_GAN_model_name)
 
         # load face_model
-        t_vars = tf.trainable_variables()
         face_vars = [var for var in t_vars if 'facenet' in var.name]
         face_model_saver = tf.train.Saver(face_vars)
         self.load_face_model(face_model_saver,self.cfg.face_model_dir, self.cfg.face_model_name)
@@ -98,11 +101,6 @@ class my_gan:
             print(" [*] Load SUCCESS")
         else:
             print(" [!] Load failed...")
-
-
-        # one_element, dataset_size = data_loader(self.cfg.datalabel_dir, self.cfg.datalabel_name, self.cfg.dataset_dir,
-        #                                         self.cfg.dataset_name, self.cfg.batch_size, self.cfg.epoch)
-
 
         tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
         one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
@@ -412,7 +410,26 @@ class my_gan:
             print(" [*] Failed to find a checkpoint")
             time.sleep(3)
             return False, 0
+
     def load_face_model(self, saver, checkpoint_dir, model_folder_name):
+        import re
+        print(" [*] Reading checkpoints...")
+        checkpoint_dir = os.path.join(checkpoint_dir, model_folder_name)
+
+        ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
+        if ckpt and ckpt.model_checkpoint_path:
+            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+            saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+            counter = int(next(re.finditer("(\d+)(?!.*\d)", ckpt_name)).group(0))
+            print(" [*] Success to read {}".format(ckpt_name))
+            time.sleep(3)
+            return True, counter
+        else:
+            print(" [*] Failed to find a checkpoint")
+            time.sleep(3)
+            return False, 0
+
+    def pre_BE_GAN_model(self, saver, checkpoint_dir, model_folder_name):
         import re
         print(" [*] Reading checkpoints...")
         checkpoint_dir = os.path.join(checkpoint_dir, model_folder_name)

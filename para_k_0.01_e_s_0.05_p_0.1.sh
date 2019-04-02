@@ -1,6 +1,6 @@
 python run_this.py \
 --gpu_assign='0' \
---is_train=Fasle \
+--is_train=True \
 --log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/logs' \
 --sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/samples' \
 --checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/checkpoint' \
@@ -13,7 +13,7 @@ python run_this.py \
 --add_summary_period=100 \
 --lr_drop_period=1 \
 --saveimage_idx=500 \
---BE_GAN_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_1/checkpointooo' \
+--BE_GAN_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/checkpoint' \
 --BE_GAN_model_name='ms1s_align' \
 --face_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/face_model_ms1s_continue_1/checkpoint' \
 --face_model_name='ms1s_align' \

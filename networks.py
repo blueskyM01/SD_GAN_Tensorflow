@@ -87,8 +87,8 @@ class m4_BE_GAN_network:
             self.k_update = tf.assign(
                 self.k_t, tf.clip_by_value(self.k_t + self.lambda_k * self.balance, 0, 1))
 
-    def GeneratorCNN(self, z, hidden_num, output_num, repeat_num, data_format, reuse):
-        with tf.variable_scope("generator", reuse=reuse) as vs:
+    def GeneratorCNN(self, z, hidden_num, output_num, repeat_num, data_format, reuse, name_="generator"):
+        with tf.variable_scope(name_, reuse=reuse) as vs:
             num_output = int(np.prod([8, 8, hidden_num]))
             x = slim.fully_connected(z, num_output, activation_fn=None)
             x = self.reshape(x, 8, 8, hidden_num, data_format)
@@ -104,8 +104,8 @@ class m4_BE_GAN_network:
         variables = tf.contrib.framework.get_variables(vs)
         return out, variables
 
-    def DiscriminatorCNN(self, x, input_channel, z_num, repeat_num, hidden_num, data_format):
-        with tf.variable_scope("discriminator") as vs:
+    def DiscriminatorCNN(self, x, input_channel, z_num, repeat_num, hidden_num, data_format, name_='discriminator'):
+        with tf.variable_scope(name_) as vs:
             # Encoder
             x = slim.conv2d(x, hidden_num, 3, 1, activation_fn=tf.nn.elu, data_format=data_format)
 
