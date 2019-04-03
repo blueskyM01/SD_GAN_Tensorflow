@@ -113,6 +113,28 @@ class m4_BE_GAN_network:
             self.k_update = tf.assign(
                 self.k_t, tf.clip_by_value(self.k_t + self.lambda_k * self.balance, 0, 1))
 
+    def build_model_test(self, images, labels, z, id_feat_real, shape_real_norm, expr_real_norm, pose_real_norm):
+        _, height, width, self.channel = \
+            self.get_conv_shape(images, self.data_format)
+        self.repeat_num = int(np.log2(height)) - 2
+
+        self.id_feat_real = self.m4_ID_Extractor(images,reuse=False)
+        self.shape_real_norm, self.expr_real_norm, self.pose_real_norm = self.model_3DMM_default_graph(self.expr_shape_pose, images,
+                                                                                        reuse=False)
+        z_concat_feat = tf.concat([z, shape_real_norm, pose_real_norm, expr_real_norm, id_feat_real], axis=1)
+        self.G, self.G_var = self.GeneratorCNN(z_concat_feat, self.conv_hidden_num, self.channel, self.repeat_num, self.data_format,
+                                                reuse=False, name_='generator')
+        self.sampler = self.G
+        # d_out, self.D_z, self.D_var = self.DiscriminatorCNN(
+        #     tf.concat([self.G, images], 0), self.channel, self.z_dim, self.repeat_num,
+        #     self.conv_hidden_num, self.data_format,reuse=False, name_='discriminator')
+        # AE_G, AE_x = tf.split(d_out, 2)
+
+
+
+
+
+
     def GeneratorCNN(self, z, hidden_num, output_num, repeat_num, data_format, reuse, name_="generator"):
         with tf.variable_scope(name_, reuse=reuse) as vs:
             num_output = int(np.prod([8, 8, hidden_num]))

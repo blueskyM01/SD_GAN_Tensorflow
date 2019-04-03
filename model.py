@@ -23,27 +23,46 @@ class my_gan:
         self.z = tf.placeholder(dtype=tf.float32, shape=[None, self.cfg.z_dim], name='noise_z')
 
         m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg)
-        m4_BE_GAN_model.build_model(self.images, self.labels, self.z)
-        self.g_optim = m4_BE_GAN_model.g_optim
-        self.d_optim = m4_BE_GAN_model.d_optim
-        self.g_loss = m4_BE_GAN_model.g_loss
-        self.d_loss = m4_BE_GAN_model.d_loss
-        self.p_loss = m4_BE_GAN_model.pose_loss
-        self.s_loss = m4_BE_GAN_model.shape_loss
-        self.e_loss = m4_BE_GAN_model.expr_loss
-        self.id_loss = m4_BE_GAN_model.id_loss
+        if self.cfg.is_train:
+            m4_BE_GAN_model.build_model(self.images, self.labels, self.z)
+            self.g_optim = m4_BE_GAN_model.g_optim
+            self.d_optim = m4_BE_GAN_model.d_optim
+            self.g_loss = m4_BE_GAN_model.g_loss
+            self.d_loss = m4_BE_GAN_model.d_loss
+            self.p_loss = m4_BE_GAN_model.pose_loss
+            self.s_loss = m4_BE_GAN_model.shape_loss
+            self.e_loss = m4_BE_GAN_model.expr_loss
+            self.id_loss = m4_BE_GAN_model.id_loss
 
-        self.global_step = m4_BE_GAN_model.global_step
+            self.global_step = m4_BE_GAN_model.global_step
+            self.k_update = m4_BE_GAN_model.k_update
+            self.k_t = m4_BE_GAN_model.k_t
+            self.Mglobal = m4_BE_GAN_model.measure
+            self.d_lr_update = m4_BE_GAN_model.d_lr_update
+            self.g_lr_update = m4_BE_GAN_model.g_lr_update
+            self.d_lr = m4_BE_GAN_model.d_lr
+            self.g_lr = m4_BE_GAN_model.g_lr
+            self.g_lr_ = self.cfg.g_lr
+            self.d_lr_ = self.cfg.d_lr
+        else:
+            self.id_feat_real = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size * self.cfg.num_gpus, 128],
+                                               name='id_feat_real')
+            self.shape_real_norm = tf.placeholder(dtype=tf.float32, shape=[self.cfg.batch_size * self.cfg.num_gpus, 198],
+                                                  name='shape_real_norm')
+            self.pose_real_norm = tf.placeholder(dtype=tf.float32,
+                                                  shape=[self.cfg.batch_size * self.cfg.num_gpus, 6],
+                                                  name='pose_real_norm')
+            self.expr_real_norm = tf.placeholder(dtype=tf.float32,
+                                                  shape=[self.cfg.batch_size * self.cfg.num_gpus, 29],
+                                                  name='expr_real_norm')
+            m4_BE_GAN_model.build_model_test(self.images, self.labels, self.z, self.id_feat_real, self.shape_real_norm,
+                                             self.expr_real_norm, self.pose_real_norm)
+            self.id_feat = m4_BE_GAN_model.id_feat_real
+            self.shape = m4_BE_GAN_model.shape_real_norm
+            self.pose = m4_BE_GAN_model.pose_real_norm
+            self.expr = m4_BE_GAN_model.expr_real_norm
         self.sampler = m4_BE_GAN_model.sampler
-        self.k_update = m4_BE_GAN_model.k_update
-        self.k_t = m4_BE_GAN_model.k_t
-        self.Mglobal = m4_BE_GAN_model.measure
-        self.d_lr_update = m4_BE_GAN_model.d_lr_update
-        self.g_lr_update = m4_BE_GAN_model.g_lr_update
-        self.d_lr = m4_BE_GAN_model.d_lr
-        self.g_lr = m4_BE_GAN_model.g_lr
-        self.g_lr_ = self.cfg.g_lr
-        self.d_lr_ = self.cfg.d_lr
+
 
     def train(self):
         try:
@@ -201,8 +220,13 @@ class my_gan:
                         batch_images = np.append(batch_images, batch_images[0:1], axis=0)
 
                 # try:
-                [samples] = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
-                                                                   self.z: batch_z})
+                [id_feat, fshape, pose, expr] = self.sess.run([self.id_feat, self.shape, self.pose, self.expr],
+                                                             feed_dict={self.images: batch_images})
+                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                     self.id_feat_real:id_feat,
+                                                                     self.shape_real_norm:fshape,
+                                                                     self.pose_real_norm:pose,
+                                                                     self.expr_real_norm:expr})
                 m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter),ff='')
                 print('save image_{}_.jpg image.'.format(counter))
                 m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
