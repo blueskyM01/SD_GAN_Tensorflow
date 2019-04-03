@@ -207,30 +207,49 @@ class my_gan:
 
         # batch_idxs = dataset_size // (self.cfg.batch_size)
         batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
+
+        np.random.seed(1)
+        batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
+
         counter = 0
         # try:
-        for epoch in range(1, self.cfg.epoch + 1):
-            for idx in range(1, batch_idxs + 1):
-                counter += 1
-                batch_images, batch_labels = self.sess.run(one_element)
-                batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
-                    np.float32)
-                if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
-                    for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
-                        batch_images = np.append(batch_images, batch_images[0:1], axis=0)
+        while 1:
+            counter += 1
+            batch_images, batch_labels = self.sess.run(one_element)
 
-                # try:
-                [id_feat, fshape, pose, expr] = self.sess.run([self.id_feat, self.shape, self.pose, self.expr],
-                                                             feed_dict={self.images: batch_images})
-                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
-                                                                     self.id_feat_real:id_feat,
-                                                                     self.shape_real_norm:fshape,
-                                                                     self.pose_real_norm:pose,
-                                                                     self.expr_real_norm:expr})
-                m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter),ff='')
-                print('save image_{}_.jpg image.'.format(counter))
-                m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
-                print('save image_{}.jpg image.'.format(counter))
+            if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
+                for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
+                    batch_images = np.append(batch_images, batch_images[0:1], axis=0)
+
+            image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/image_28_11-G.jpg', 1)  # BGR
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+            image = image / 127.5 - 1.0
+
+
+            image_list = []
+
+            for i in range(self.cfg.batch_size):
+                image_list.append(image)
+
+            batch_images_1 = np.asarray(image_list)
+
+            # try:
+            [expr] = self.sess.run([self.expr], feed_dict={self.images: batch_images})
+
+            [id_feat, pose, fshape] = self.sess.run([self.id_feat, self.pose, self.shape], feed_dict={self.images: batch_images})
+
+            [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                 self.id_feat_real:id_feat,
+                                                                 self.shape_real_norm:fshape,
+                                                                 self.pose_real_norm:pose,
+                                                                 self.expr_real_norm:expr})
+            m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter),ff='')
+            print('save image_{}_.jpg image.'.format(counter))
+            m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+            print('save image_{}.jpg image.'.format(counter))
+
+            # break
 
                 # except:
                 #     print('one picture save error....')
