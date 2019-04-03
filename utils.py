@@ -28,6 +28,23 @@ def m4_image_save_cv(images, savepath, rows=4, zero_mean=True):
     merge_image = cv2.cvtColor(merge_image, cv2.COLOR_BGR2RGB)  # cv2默认为bgr顺序
     cv2.imwrite(savepath, merge_image)
 
+def m4_image_onebyone_cv(images, savepath, ff='', rows=4, zero_mean=True):
+    # introduction: a series of images save as a picture
+    # image: 4 dims
+    # rows: how many images in a row
+    # cols: how many images in a col
+    # zero_mean:
+
+    if zero_mean:
+        images = images * 127.5 + 127.5
+    if images.dtype != np.uint8:
+        images = images.astype(np.uint8)
+    counter = 0
+    for img in images:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # cv2默认为bgr顺序
+        cv2.imwrite(savepath + str(counter) + ff + '.jpg', img)
+        counter += 1
+
 def m4_get_open_image_name(file_list,dataset_dir):
     for i in range(len(file_list)):
         file_list[i] = os.path.join(dataset_dir,file_list[i])

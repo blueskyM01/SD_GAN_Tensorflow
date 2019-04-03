@@ -34,7 +34,7 @@ class my_gan:
         self.id_loss = m4_BE_GAN_model.id_loss
 
         self.global_step = m4_BE_GAN_model.global_step
-        self.sampler = m4_BE_GAN_model.G
+        self.sampler = m4_BE_GAN_model.sampler
         self.k_update = m4_BE_GAN_model.k_update
         self.k_t = m4_BE_GAN_model.k_t
         self.Mglobal = m4_BE_GAN_model.measure
@@ -84,7 +84,7 @@ class my_gan:
 
         tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
         one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size * self.cfg.num_gpus,
-                                                                    epoch=self.cfg.epoch)
+                                                                    epoch=self.cfg.epoch, is_train=False)
 
 
         # batch_idxs = dataset_size // (self.cfg.batch_size * self.cfg.num_gpus)
@@ -171,18 +171,23 @@ class my_gan:
         # load 3DMM model
         self.load_expr_shape_pose_param()
 
-        # load all train param
-        could_load, counter = self.load(self.cfg.checkpoint_dir, self.cfg.dataset_name)
+        # 收集所有训练变量
+        t_vars = tf.trainable_variables()
+        # load pre_model
+        pre_BE_GAN_vars = [var for var in t_vars if 'generator' or 'discriminator' or 'facenet' in var.name]
+        pre_BE_GAN_model_saver = tf.train.Saver(pre_BE_GAN_vars)
+        could_load, counter = self.pre_BE_GAN_model(pre_BE_GAN_model_saver, self.cfg.BE_GAN_model_dir, self.cfg.BE_GAN_model_name)
         if could_load:
             print(" [*] Load SUCCESS")
         else:
             print(" [!] Load failed...")
 
         tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
-        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size, epoch=self.cfg.epoch)
+        one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size * self.cfg.num_gpus,
+                                                                    epoch=self.cfg.epoch, is_train=self.cfg.is_train)
 
         # batch_idxs = dataset_size // (self.cfg.batch_size)
-        batch_idxs = 50400 * 40 // (self.cfg.batch_size)
+        batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
         counter = 0
         # try:
         for epoch in range(1, self.cfg.epoch + 1):
@@ -195,16 +200,16 @@ class my_gan:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images, batch_images[0:1], axis=0)
 
-                try:
-                    samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
-                                                                       self.z: batch_z})
-                    m4_image_save_cv(samples[0], '{}/generate_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
-                    print('save generate_{}.jpg image.'.format(counter))
-                    m4_image_save_cv(batch_images, '{}/original_{}.jpg'.format(self.cfg.test_sample_save_dir, counter))
-                    print('save original_{}.jpg image.'.format(counter))
+                # try:
+                [samples] = self.sess.run([self.sampler], feed_dict={self.images: batch_images,
+                                                                   self.z: batch_z})
+                m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter),ff='')
+                print('save image_{}_.jpg image.'.format(counter))
+                m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+                print('save image_{}.jpg image.'.format(counter))
 
-                except:
-                    print('one picture save error....')
+                # except:
+                #     print('one picture save error....')
 
 
         # except:

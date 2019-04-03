@@ -142,7 +142,7 @@ class Reader:
 
 
 
-    def build_dataset(self, batch_size, epoch):
+    def build_dataset(self, batch_size, epoch, is_train=True):
         """
         Introduction
         ------------
@@ -159,8 +159,10 @@ class Reader:
 
         dataset = tf.data.TFRecordDataset(filenames = self.TfrecordFile)
         dataset = dataset.map(self.parser, num_parallel_calls = 10)
-
-        dataset = dataset.shuffle(10000).batch(batch_size).repeat(epoch)
+        if is_train:
+            dataset = dataset.shuffle(10000).batch(batch_size).repeat(epoch)
+        else:
+            dataset = dataset.batch(batch_size).repeat(epoch)
         # dataset = dataset.repeat().batch(batch_size).prefetch(batch_size)
         iterator = dataset.make_one_shot_iterator()
         one_element = iterator.get_next()

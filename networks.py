@@ -59,6 +59,9 @@ class m4_BE_GAN_network:
                 z_concat_feat = tf.concat([z_on_one_gpu, shape_real_norm, pose_real_norm, expr_real_norm, id_feat_real], axis=1)
                 self.G, self.G_var = self.GeneratorCNN( z_concat_feat, self.conv_hidden_num, self.channel, self.repeat_num, self.data_format,
                                                         reuse=muti_gpu_reuse_0, name_='generator')
+                if i == 0:
+                    self.sampler = self.G
+
                 id_feat_fake = self.m4_ID_Extractor(self.G,reuse=muti_gpu_reuse_1)
                 shape_fake_norm, expr_fake_norm, pose_fake_norm = self.model_3DMM_default_graph(self.expr_shape_pose, self.G,
                                                                                                 reuse=muti_gpu_reuse_1) # get fake feat
