@@ -2,7 +2,7 @@ import tensorflow as tf
 
 # -----------------------------m4_BE_GAN_network-----------------------------
 gpu_assign = '0'
-is_train = False
+is_train = True
 save_dir = '/muti-progress-feat/'
 dataset_dir = '/media/yang/F/DataSet/Face'
 dataset_name = 'ms1s_align'
@@ -17,9 +17,9 @@ log_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'logs'  # need to chan
 sampel_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'samples'  # need to change
 checkpoint_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'checkpoint'  # need to change
 test_sample_save_dir = '/media/yang/F/ubuntu/SD_GAN_Result' + save_dir+'test_sample2'  # need to change
-num_gpus = 1
+num_gpus = 2
 epoch = 10
-batch_size = 20  # need to change
+batch_size = 16  # need to change
 z_dim = 128 # or 128
 conv_hidden_num = 128 # 128
 data_format = 'NHWC'

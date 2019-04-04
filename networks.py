@@ -218,25 +218,6 @@ class m4_BE_GAN_network:
         return x
 
 
-    # def model_3DMM_new_graph(self, new_graph, images_3DMM):
-    #     with new_graph.as_default():
-    #         expr_shape_pose = ESP.m4_3DMM(self.cfg)
-    #         expr_shape_pose.extract_PSE_feats(images_3DMM,reuse=False)
-    #         fc1ls_real = expr_shape_pose.fc1ls
-    #         fc1le_real = expr_shape_pose.fc1le
-    #         pose_model_real = expr_shape_pose.pose
-    #         shape_norm = tf.nn.l2_normalize(fc1ls_real,dim=0)
-    #         expr_norm = tf.nn.l2_normalize(fc1le_real,dim=0)
-    #         pose_norm = tf.nn.l2_normalize(pose_model_real, dim=0)
-    #
-    #         sess_3DMM = tf.Session(graph=new_graph)
-    #         try:
-    #             sess_3DMM.run(tf.global_variables_initializer())
-    #         except:
-    #             sess_3DMM.run(tf.initialize_all_variables())
-    #         self.load_expr_shape_pose_param_new_graph(sess_3DMM)
-    #         return shape_norm, expr_norm, pose_norm, sess_3DMM
-
     def model_3DMM_default_graph(self, expr_shape_pose, images, reuse=False):
         expr_shape_pose.extract_PSE_feats(images,reuse=reuse)
         fc1ls = expr_shape_pose.fc1ls
@@ -247,39 +228,6 @@ class m4_BE_GAN_network:
         pose_norm = tf.nn.l2_normalize(pose_model, dim=0)
         return shape_norm, expr_norm, pose_norm
 
-
-    # def load_expr_shape_pose_param_new_graph(self, sess):
-    #     # Add ops to save and restore all the variables.
-    #     saver_pose = tf.train.Saver(
-    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
-    #     saver_ini_shape_net = tf.train.Saver(
-    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
-    #     saver_ini_expr_net = tf.train.Saver(
-    #         var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
-    #
-    #     # Load face pose net model from Chang et al.'ICCVW17
-    #     try:
-    #         load_path = self.cfg.fpn_new_model_ckpt_file_path
-    #         saver_pose.restore(sess, load_path)
-    #         print('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' successful....')
-    #     except:
-    #         raise Exception('Load ' + self.cfg.fpn_new_model_ckpt_file_path + ' failed....')
-    #
-    #     # load 3dmm shape and texture model from Tran et al.' CVPR2017
-    #     try:
-    #         load_path = self.cfg.Shape_Model_file_path
-    #         saver_ini_shape_net.restore(sess, load_path)
-    #         print('Load ' + self.cfg.Shape_Model_file_path + ' successful....')
-    #     except:
-    #         raise Exception('Load ' + self.cfg.Shape_Model_file_path + ' failed....')
-    #     # load our expression net model
-    #     try:
-    #         load_path = self.cfg.Expression_Model_file_path
-    #         saver_ini_expr_net.restore(sess, load_path)
-    #         print('Load ' + self.cfg.Expression_Model_file_path + ' successful....')
-    #     except:
-    #         raise Exception('Load ' + self.cfg.Expression_Model_file_path + ' failed....')
-    #     time.sleep(3)
 
     def m4_ID_Extractor(self, images, reuse=False):
         with tf.variable_scope('facenet',reuse=reuse) as scope:

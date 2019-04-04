@@ -103,7 +103,7 @@ class my_gan:
 
         tensor_file_maker = Reader(self.cfg.tfrecord_path, self.cfg.datalabel_dir, self.cfg.datalabel_name)
         one_element, dataset_size = tensor_file_maker.build_dataset(batch_size=self.cfg.batch_size * self.cfg.num_gpus,
-                                                                    epoch=self.cfg.epoch, is_train=False)
+                                                                    epoch=self.cfg.epoch, is_train=self.cfg.is_train)
 
 
         # batch_idxs = dataset_size // (self.cfg.batch_size * self.cfg.num_gpus)
@@ -112,7 +112,7 @@ class my_gan:
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
 
 
-        m4_image_save_cv(batch_images_G, '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
+        m4_image_save_cv(batch_images_G[0:self.cfg.batch_size], '{}/x_fixed.jpg'.format(self.cfg.sampel_save_dir))
         print('save x_fixed.jpg.')
         # try:
         for epoch in range(1,self.cfg.epoch+1):
@@ -208,7 +208,7 @@ class my_gan:
         # batch_idxs = dataset_size // (self.cfg.batch_size)
         batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
 
-        np.random.seed(1)
+        # np.random.seed(1)
         batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
 
         counter = 0

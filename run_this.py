@@ -88,7 +88,7 @@ parser.add_argument("--BaselFaceModel_mod_file_path", default=param.BaselFaceMod
 
 cfg = parser.parse_args()
 
-os.environ["CUDA_VISIBLE_DEVICES"] = cfg.gpu_assign  # 指定第  块GPU可用
+# os.environ["CUDA_VISIBLE_DEVICES"] = cfg.gpu_assign  # 指定第  块GPU可用
 
 if __name__ == '__main__':
 

@@ -1,10 +1,10 @@
 python run_this.py \
 --gpu_assign='0' \
 --is_train=True \
---log_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/logs' \
---sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/samples' \
---checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/checkpoint' \
---test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/train on ms1s countinue_start/test_sample' \
+--log_dir='/media/yang/F/ubuntu/SD_GAN_Result/muti-progress-feat/logs' \
+--sampel_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/muti-progress-feat/samples' \
+--checkpoint_dir='/media/yang/F/ubuntu/SD_GAN_Result/muti-progress-feat/checkpoint' \
+--test_sample_save_dir='/media/yang/F/ubuntu/SD_GAN_Result/muti-progress-feat/test_sample' \
 --lambda_k=0.01 \
 --lambda_s=0.05 \
 --lambda_e=0.05 \
@@ -18,5 +18,5 @@ python run_this.py \
 --face_model_dir='/media/yang/F/ubuntu/SD_GAN_Result/face_model_ms1s_continue_1/checkpoint' \
 --face_model_name='ms1s_align' \
 --batch_size=20 \
---g_lr=0.00008 \
---d_lr=0.00008
+--g_lr=0.00005 \
+--d_lr=0.00005
