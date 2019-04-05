@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f00777bc-b784-4dbf-8661-5ee35500e39d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/networks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/param.py" beforeDir="false" afterPath="$PROJECT_DIR$/param.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_this.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_this.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ID_3DMM_GAN.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ID_3DMM_GAN.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yh.py" beforeDir="false" afterPath="$PROJECT_DIR$/yh.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,82 +13,12 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="-82657318">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="1" />
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.opened" value="1" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="py" value="6" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Python" value="6" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="py" value="452" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Python" value="452" />
-        </counts>
-      </usages-collector>
-    </session>
-    <session id="1210882332">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="6" />
-          <entry key="project.open.time.0" value="4" />
-          <entry key="project.open.time.3" value="3" />
-          <entry key="project.open.time.7" value="1" />
-          <entry key="project.opened" value="8" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="py" value="5928" />
-          <entry key="sh" value="255" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="PLAIN_TEXT" value="255" />
-          <entry key="Python" value="5928" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="jpg" value="14" />
-          <entry key="py" value="27" />
-          <entry key="pyi" value="1" />
-          <entry key="sh" value="3" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Image" value="14" />
-          <entry key="PLAIN_TEXT" value="3" />
-          <entry key="Python" value="27" />
-          <entry key="PythonStub" value="1" />
-        </counts>
-      </usages-collector>
-    </session>
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/networks.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-260">
+            <state relative-caret-position="255">
               <caret line="24" column="39" selection-start-line="24" selection-start-column="39" selection-end-line="24" selection-end-column="39" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
@@ -101,8 +30,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataReader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="52">
-              <caret line="144" column="47" lean-forward="true" selection-start-line="144" selection-start-column="47" selection-end-line="144" selection-end-column="47" />
+            <state relative-caret-position="2070">
+              <caret line="144" column="47" selection-start-line="144" selection-start-column="47" selection-end-line="144" selection-end-column="47" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -110,11 +39,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-284">
-              <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
+            <state relative-caret-position="390">
+              <caret line="146" column="62" selection-start-line="146" selection-start-column="62" selection-end-line="146" selection-end-column="62" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -122,10 +51,19 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/yh.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="120">
+              <caret line="24" column="13" lean-forward="true" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="587">
+            <state relative-caret-position="675">
               <caret line="48" column="35" selection-start-line="48" selection-start-column="35" selection-end-line="48" selection-end-column="35" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -137,8 +75,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_this.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="91" lean-forward="true" selection-start-line="91" selection-end-line="91" />
+            <state relative-caret-position="1275">
+              <caret line="91" selection-start-line="91" selection-end-line="91" />
               <folding>
                 <element signature="e#0#64#0" expanded="true" />
               </folding>
@@ -150,7 +88,7 @@
         <entry file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state>
-              <caret column="20" lean-forward="true" selection-start-column="20" selection-end-column="20" />
+              <caret column="20" selection-start-column="20" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -158,7 +96,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/param.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
+            <state relative-caret-position="150">
               <caret line="10" column="70" selection-start-line="10" selection-start-column="70" selection-end-line="10" selection-end-column="70" />
             </state>
           </provider>
@@ -167,8 +105,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExpShapePoseNet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1477">
-              <caret line="114" column="56" lean-forward="true" selection-start-line="114" selection-start-column="56" selection-end-line="114" selection-end-column="56" />
+            <state relative-caret-position="1425">
+              <caret line="114" column="56" selection-start-line="114" selection-start-column="56" selection-end-line="114" selection-end-column="56" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -208,20 +146,20 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/inception_resnet_v1.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/data_loader_tensorflow_dataset.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/ThreeDMM_shape.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/run_this.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/dataReader.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/ops.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/networks.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/dataReader.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/yh.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/ExpShapePoseNet.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/param.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/model.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/networks.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/utils.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/model.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/param.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/inception_resnet_v1.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/ExpShapePoseNet.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/run_this.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -229,7 +167,6 @@
         <option value="$PROJECT_DIR$/ops.py" />
         <option value="$PROJECT_DIR$/dataset_label_maker.sh" />
         <option value="$PROJECT_DIR$/m4_Dataset_Label_Maker.py" />
-        <option value="$PROJECT_DIR$/yh.py" />
         <option value="$PROJECT_DIR$/data_loader_tensorflow_dataset.py" />
         <option value="$PROJECT_DIR$/ExpShapePoseNet.py" />
         <option value="$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py" />
@@ -240,6 +177,7 @@
         <option value="$PROJECT_DIR$/param.py" />
         <option value="$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh" />
         <option value="$PROJECT_DIR$/model.py" />
+        <option value="$PROJECT_DIR$/yh.py" />
       </list>
     </option>
   </component>
@@ -260,8 +198,8 @@
         <subPane>
           <expand>
             <path>
-              <item name="SD_GAN_tensorflow" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SD_GAN_tensorflow" type="462c0819:PsiDirectoryNode" />
+              <item name="SD_GAN_Tensorflow" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SD_GAN_Tensorflow" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -270,6 +208,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -392,11 +331,11 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.dataReader" />
+      <item itemvalue="Python.model" />
+      <item itemvalue="Python.param" />
       <item itemvalue="Python.run_this" />
       <item itemvalue="Python.yh" />
-      <item itemvalue="Python.param" />
-      <item itemvalue="Python.model" />
-      <item itemvalue="Python.dataReader" />
     </list>
     <recent_temporary>
       <list>
@@ -425,7 +364,7 @@
     <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49702382" visible="true" weight="0.14776444" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49702382" visible="true" weight="0.14770241" />
       <window_info id="Structure" order="1" sideWeight="0.5029762" side_tool="true" weight="0.19738276" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -436,7 +375,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.49945474" visible="true" weight="0.33511207" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49945474" visible="true" weight="0.21155831" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50054526" side_tool="true" weight="0.6691569" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -466,9 +405,6 @@
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.sh" />
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/m4_Dataset_Label_Maker.py" />
     <entry file="file://$PROJECT_DIR$/dataset_label_maker.sh" />
@@ -497,13 +433,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/output_ply/x_fixed4444.jpg" />
-    <entry file="file://$PROJECT_DIR$/yh.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="22" column="14" selection-start-line="22" selection-start-column="14" selection-end-line="22" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/output_ply/11.jpg" />
     <entry file="file://$PROJECT_DIR$/inception_resnet_v1.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -554,10 +483,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/image_8_2-G.jpg" />
+    <entry file="file://$PROJECT_DIR$/image_16_17-G.jpg" />
+    <entry file="file://$PROJECT_DIR$/image_3_6-G.jpg" />
+    <entry file="file://$PROJECT_DIR$/image_3_8-G.jpg" />
+    <entry file="file://$PROJECT_DIR$/networks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="24" column="39" selection-start-line="24" selection-start-column="39" selection-end-line="24" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dataReader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="52">
-          <caret line="144" column="47" lean-forward="true" selection-start-line="144" selection-start-column="47" selection-end-line="144" selection-end-column="47" />
+        <state relative-caret-position="2070">
+          <caret line="144" column="47" selection-start-line="144" selection-start-column="47" selection-end-line="144" selection-end-column="47" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -566,7 +509,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="587">
+        <state relative-caret-position="675">
           <caret line="48" column="35" selection-start-line="48" selection-start-column="35" selection-end-line="48" selection-end-column="35" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
@@ -574,42 +517,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/image_8_2-G.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/image_16_17-G.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/image_3_6-G.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/image_3_8-G.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ExpShapePoseNet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1477">
-          <caret line="114" column="56" lean-forward="true" selection-start-line="114" selection-start-column="56" selection-end-line="114" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/networks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-260">
-          <caret line="24" column="39" selection-start-line="24" selection-start-column="39" selection-end-line="24" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/run_this.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="91" lean-forward="true" selection-start-line="91" selection-end-line="91" />
+        <state relative-caret-position="1275">
+          <caret line="91" selection-start-line="91" selection-end-line="91" />
           <folding>
             <element signature="e#0#64#0" expanded="true" />
           </folding>
@@ -619,24 +530,41 @@
     <entry file="file://$PROJECT_DIR$/para_k_0.01_e_s_0.05_p_0.1.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state>
-          <caret column="20" lean-forward="true" selection-start-column="20" selection-end-column="20" />
+          <caret column="20" selection-start-column="20" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/param.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
+        <state relative-caret-position="150">
           <caret line="10" column="70" selection-start-line="10" selection-start-column="70" selection-end-line="10" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExpShapePoseNet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1425">
+          <caret line="114" column="56" selection-start-line="114" selection-start-column="56" selection-end-line="114" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-284">
-          <caret line="121" column="22" selection-start-line="121" selection-start-column="22" selection-end-line="121" selection-end-column="22" />
+        <state relative-caret-position="390">
+          <caret line="146" column="62" selection-start-line="146" selection-start-column="62" selection-end-line="146" selection-end-column="62" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/yh.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="24" column="13" lean-forward="true" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
         </state>
       </provider>
     </entry>
