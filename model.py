@@ -83,7 +83,7 @@ class my_gan:
         t_vars = tf.trainable_variables()
 
         # load pre_model
-        pre_BE_GAN_vars = [var for var in t_vars if 'generator' or 'discriminator' in var.name]
+        pre_BE_GAN_vars = [var for var in t_vars if 'generator' in var.name or 'discriminator' in var.name]
         pre_BE_GAN_model_saver = tf.train.Saver(pre_BE_GAN_vars)
         self.pre_BE_GAN_model(pre_BE_GAN_model_saver, self.cfg.BE_GAN_model_dir, self.cfg.BE_GAN_model_name)
 
