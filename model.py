@@ -25,19 +25,17 @@ class my_gan:
         m4_BE_GAN_model = m4_BE_GAN_network(self.sess, self.cfg)
         if self.cfg.is_train:
             m4_BE_GAN_model.build_model(self.images, self.labels, self.z)
-            self.g_optim = m4_BE_GAN_model.g_optim
-            self.d_optim = m4_BE_GAN_model.d_optim
-            self.g_loss = m4_BE_GAN_model.g_loss
-            self.d_loss = m4_BE_GAN_model.d_loss
-            self.p_loss = m4_BE_GAN_model.pose_loss
-            self.s_loss = m4_BE_GAN_model.shape_loss
-            self.e_loss = m4_BE_GAN_model.expr_loss
-            self.id_loss = m4_BE_GAN_model.id_loss
+            self.g_loss = m4_BE_GAN_model.g_loss_128
+            self.d_loss = m4_BE_GAN_model.d_loss_128
+            self.p_loss = m4_BE_GAN_model.pose_loss_128
+            self.s_loss = m4_BE_GAN_model.shape_loss_128
+            self.e_loss = m4_BE_GAN_model.expr_loss_128
+            self.id_loss = m4_BE_GAN_model.id_loss_128
 
             self.global_step = m4_BE_GAN_model.global_step
-            self.k_update = m4_BE_GAN_model.k_update
-            self.k_t = m4_BE_GAN_model.k_t
-            self.Mglobal = m4_BE_GAN_model.measure
+            self.k_update = m4_BE_GAN_model.k_update_128
+            self.k_t = m4_BE_GAN_model.k_t_128
+            self.Mglobal = m4_BE_GAN_model.measure_128
             self.d_lr_update = m4_BE_GAN_model.d_lr_update
             self.g_lr_update = m4_BE_GAN_model.g_lr_update
             self.d_lr = m4_BE_GAN_model.d_lr
@@ -77,6 +75,7 @@ class my_gan:
         self.writer = tf.summary.FileWriter('{}/{}'.format(self.cfg.log_dir,
                                                            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))),
                                                            self.sess.graph)
+        print('save log file....')
         merged = tf.summary.merge_all()
 
         # 收集所有训练变量

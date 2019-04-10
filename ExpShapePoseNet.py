@@ -23,7 +23,6 @@ from ThreeDMM_expr import ResNet_101 as resnet101_expr
 class m4_3DMM:
     def __init__(self, cfg):
         self.cfg = cfg
-
         # Get training image/labels mean/std for pose CNN
         try:
             file = np.load(self.cfg.train_imgs_mean_file_path, )
@@ -59,7 +58,7 @@ class m4_3DMM:
         # except:
         #     raise Exception('Load ' + self.cfg.ThreeDMM_shape_mean_file_path + ' failed....')
 
-    def extract_PSE_feats(self, x, reuse=False):
+    def extract_PSE_feats(self, x, batch_size, reuse=False):
         '''
         :param x: x format is RGB and is value range is [-1,1].
         :return: fc1ls: shape, fc1le: expression, pose_model.preds_unNormalized: pose
@@ -81,7 +80,7 @@ class m4_3DMM:
         ###################
         try:
             net_data = np.load(self.cfg.PAM_frontal_ALexNet_file_path, encoding="latin1").item()
-            pose_labels = np.zeros([self.cfg.batch_size, 6])
+            pose_labels = np.zeros([batch_size, 6])
             print('Load ' + self.cfg.PAM_frontal_ALexNet_file_path+ ' successful....')
         except:
             raise Exception('Load ' + self.cfg.PAM_frontal_ALexNet_file_path+ ' failed....')
@@ -94,7 +93,7 @@ class m4_3DMM:
         mean = tf.cast(mean, 'float32')
         x1 = x1 - mean
 
-        pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, self.cfg.batch_size,
+        pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, batch_size,
                                                 self.mean_labels, self.std_labels)
         pose_model._build_graph(reuse=reuse)
         self.pose = pose_model.preds_unNormalized
@@ -105,7 +104,7 @@ class m4_3DMM:
         ###################
         x2 = tf.image.resize_bilinear(x, tf.constant([224, 224], dtype=tf.int32))
         x2 = tf.cast(x2, 'float32')
-        x2 = tf.reshape(x2, [self.cfg.batch_size, 224, 224, 3])
+        x2 = tf.reshape(x2, [batch_size, 224, 224, 3])
 
         # Image normalization
         mean = tf.reshape(self.mean_image_shape, [1, 224, 224, 3])
@@ -116,7 +115,7 @@ class m4_3DMM:
             net_shape = resnet101_shape({'input': x2}, trainable=True)
             pool5 = net_shape.layers['pool5']
             pool5 = tf.squeeze(pool5)
-            pool5 = tf.reshape(pool5, [self.cfg.batch_size, -1])
+            pool5 = tf.reshape(pool5, [batch_size, -1])
             try:
                 npzfile = np.load(self.cfg.ShapeNet_fc_weights_file_path)
                 print('Load ' + self.cfg.ShapeNet_fc_weights_file_path + ' successful....')
@@ -139,7 +138,7 @@ class m4_3DMM:
             net_expr = resnet101_expr({'input': x2}, trainable=True)
             pool5 = net_expr.layers['pool5']
             pool5 = tf.squeeze(pool5)
-            pool5 = tf.reshape(pool5, [self.cfg.batch_size, -1])
+            pool5 = tf.reshape(pool5, [batch_size, -1])
 
             try:
                 npzfile = np.load(self.cfg.ExpNet_fc_weights_file_path)
