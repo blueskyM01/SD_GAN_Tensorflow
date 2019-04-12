@@ -25,13 +25,19 @@ def m4_batch_norm(input_, is_trainable):
     return output
 
 
-def m4_active_function(input_, active_function='relu', name='m4_active_function'):
+def m4_active_function(input_, active_function='relu', name='active_function'):
     with tf.variable_scope(name):
         if active_function == 'relu':
             active = tf.nn.relu(input_)
+            return active
         elif active_function == 'leak_relu':
             active = m4_leak_relu(input_)
-        return active
+            return active
+        elif active_function == 'elu':
+            active = tf.nn.elu(input_)
+            return active
+        else:
+            return input_
 
 
 def m4_conv_moudel(input_, fiters, k_h=3, k_w=3, s_h=1, s_w=1, stddev=0.02, padding="SAME", active_function='relu',
@@ -46,13 +52,14 @@ def m4_conv_moudel(input_, fiters, k_h=3, k_w=3, s_h=1, s_w=1, stddev=0.02, padd
         return conv
 
 
-def m4_conv(input_, fiters, k_h=3, k_w=3, s_h=1, s_w=1, padding="SAME", stddev=0.02, name='m4_conv'):
-    with tf.variable_scope(name):
+def m4_conv(input_, fiters, k_h=3, k_w=3, s_h=1, s_w=1, padding="SAME", stddev=0.02, name='conv'):
+    with tf.variable_scope(name) as scope:
         batch, heigt, width, nc = input_.get_shape().as_list()
         w = tf.get_variable('w', [k_h, k_w, nc, fiters], initializer=tf.truncated_normal_initializer(stddev=stddev))
         bias = tf.get_variable('bias', [fiters], initializer=tf.constant_initializer(0.0))
         conv = tf.nn.conv2d(input_, w, strides=[1, s_h, s_w, 1], padding=padding) + bias
-        return conv
+        vars = tf.contrib.framework.get_variables(scope)
+        return conv, vars
 
 
 def m4_deconv_moudel(input_, output_shape, k_h=3, k_w=3, s_h=2, s_w=2, padding="SAME", stddev=0.02,
@@ -84,17 +91,25 @@ def m4_deconv(input_, output_shape, k_h=3, k_w=3, s_h=2, s_w=2, padding="SAME", 
         return deconv
 
 
-def m4_linear(input_, output, active_function='leak_relu', norm='batch_norm', is_trainable=True, do_active=True,
-              stddev=0.02, name='m4_linear'):
-    with tf.variable_scope(name):
+# def m4_linear(input_, output, active_function='leak_relu', norm='batch_norm', is_trainable=True, do_active=True,
+#               stddev=0.02, name='m4_linear'):
+#     with tf.variable_scope(name):
+#         input_shape = input_.get_shape().as_list()
+#         w = tf.get_variable('w', [input_shape[-1], output], initializer=tf.random_normal_initializer(stddev=stddev))
+#         biases = tf.get_variable('biases', [output], initializer=tf.constant_initializer(0.0))
+#         conn = tf.matmul(input_, w) + biases
+#         if do_active:
+#             conn = m4_active_function(conn, active_function)
+#         if norm == 'batch_norm':
+#             conn = m4_batch_norm(conn, is_trainable)
+
+def m4_FullConnect(input_, output, active_function='leak_relu', stddev=0.02, reuse=False, name='fullconnect'):
+    with tf.variable_scope(name, reuse=reuse):
         input_shape = input_.get_shape().as_list()
         w = tf.get_variable('w', [input_shape[-1], output], initializer=tf.random_normal_initializer(stddev=stddev))
         biases = tf.get_variable('biases', [output], initializer=tf.constant_initializer(0.0))
         conn = tf.matmul(input_, w) + biases
-        if do_active:
-            conn = m4_active_function(conn, active_function)
-        if norm == 'batch_norm':
-            conn = m4_batch_norm(conn, is_trainable)
+        conn = m4_active_function(conn, active_function)
         return conn
 
 
@@ -112,7 +127,7 @@ def m4_resnet_18(input_, name='resnet_18'):
 
         for i in range(2):
             res_block1 = m4_res_block(res_block1, [64, 64], [3, 3], [1, 1], active_function='leak_relu',
-                                   name='3x3x64_{}'.format(i))
+                                      name='3x3x64_{}'.format(i))
 
         conv3 = m4_conv_moudel(res_block1, 128, k_h=3, k_w=3, s_h=2, s_w=2, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
@@ -121,21 +136,21 @@ def m4_resnet_18(input_, name='resnet_18'):
         res_block2 = conv3
         for i in range(2):
             res_block2 = m4_res_block(res_block2, [128, 128], [3, 3], [1, 1], active_function='leak_relu',
-                                   name='3x3x128_{}'.format(i))
+                                      name='3x3x128_{}'.format(i))
         conv4 = m4_conv_moudel(res_block2, 256, k_h=3, k_w=3, s_h=2, s_w=2, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
                                norm='batch_norm', is_trainable=True, do_active=True, name='conv4')  # 16x16x256
         res_block3 = conv4
         for i in range(2):
             res_block3 = m4_res_block(res_block3, [256, 256], [3, 3], [1, 1], active_function='leak_relu',
-                                   name='3x3x256_{}'.format(i))
+                                      name='3x3x256_{}'.format(i))
         conv5 = m4_conv_moudel(res_block3, 512, k_h=3, k_w=3, s_h=2, s_w=2, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
                                norm='batch_norm', is_trainable=True, do_active=True, name='conv5')  # 8x8x512
         res_block4 = conv5
         for i in range(3):
             res_block4 = m4_res_block(res_block4, [512, 512], [3, 3], [1, 1], active_function='leak_relu',
-                                   name='3x3x512_{}'.format(i))
+                                      name='3x3x512_{}'.format(i))
         _, h, w, nc = res_block4.get_shape().as_list()
         reshape = tf.reshape(res_block4, [-1, h * w * nc])
         conn1 = m4_linear(reshape, 256, name='conn1')
@@ -145,8 +160,8 @@ def m4_resnet_18(input_, name='resnet_18'):
 
 
 def m4_res_block(input_, n_filters, k_sizes, s_sizes, padding='SAME', stddev=0.02, active_function='relu',
-              norm='batch_norm',
-              is_trainable=True, do_active=True, name='m4_res_block'):
+                 norm='batch_norm',
+                 is_trainable=True, do_active=True, name='m4_res_block'):
     # n_filters=[64,64]
     # k_sizes=[3,3]
     # s_sizes=[1,1]
@@ -168,8 +183,9 @@ def m4_res_block(input_, n_filters, k_sizes, s_sizes, padding='SAME', stddev=0.0
         conv = tf.nn.relu(conv + input_, name='relu')
         conv = m4_batch_norm(conv, is_trainable)
         return conv
-    
-def m4_VGG(input_,name='VGG'):
+
+
+def m4_VGG(input_, name='VGG'):
     with tf.variable_scope(name):
         conv1 = m4_conv_moudel(input_, 32, k_h=3, k_w=3, s_h=1, s_w=1, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
@@ -187,16 +203,15 @@ def m4_VGG(input_,name='VGG'):
 
         conv4 = m4_conv_moudel(pool3, 128, k_h=3, k_w=3, s_h=1, s_w=1, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
-                               norm='batch_norm', is_trainable=True, do_active=True, name='conv4')# 32x32x128
+                               norm='batch_norm', is_trainable=True, do_active=True, name='conv4')  # 32x32x128
         conv5 = m4_conv_moudel(conv4, 128, k_h=3, k_w=3, s_h=1, s_w=1, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
-                               norm='batch_norm', is_trainable=True, do_active=True, name='conv5')# 32x32x128
+                               norm='batch_norm', is_trainable=True, do_active=True, name='conv5')  # 32x32x128
 
         conv6 = m4_conv_moudel(conv5, 128, k_h=3, k_w=3, s_h=2, s_w=2, stddev=0.02, padding="SAME",
                                active_function='leak_relu',
-                               norm='batch_norm', is_trainable=True, do_active=True, name='conv6')# 16x16x128
+                               norm='batch_norm', is_trainable=True, do_active=True, name='conv6')  # 16x16x128
         return conv5, tf.reduce_mean(conv6)
-
 
 
 def m4_average_grads(tower):
@@ -224,15 +239,15 @@ def m4_wgan_loss(d_real, d_fake):
 def m4_parse_function(filename, label):
     image_string = tf.read_file(filename)
     # image_decoded = tf.image.decode_image(image_string)
-    image_decoded = tf.image.decode_jpeg(image_string,3)
-    image_decoded = tf.image.convert_image_dtype(image_decoded,dtype=tf.float32) * 2.0 - 1.0
+    image_decoded = tf.image.decode_jpeg(image_string, 3)
+    image_decoded = tf.image.convert_image_dtype(image_decoded, dtype=tf.float32) * 2.0 - 1.0
     image_resized = tf.image.resize_images(image_decoded, [128, 128])
     label = tf.one_hot(label, 10575)
     return image_resized, label
+
 
 def m4_feat_norm(input_):
     # value range:0~1
     # a / (a^2 + b^2)
     x = input_ / tf.sqrt((tf.reduce_sum(tf.square(input_))))
     return x
-
