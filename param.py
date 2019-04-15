@@ -3,7 +3,7 @@ import tensorflow as tf
 # -----------------------------m4_BE_GAN_network-----------------------------
 gpu_assign = '0'
 is_train = True
-save_dir = '/muti-progress-train_tttt/'
+save_dir = '/muti-progress-train_1/'
 dataset_dir = '/media/yang/F/DataSet/Face'
 dataset_name = 'ms1s_align'
 datalabel_dir = '/media/yang/F/DataSet/Face/Label'

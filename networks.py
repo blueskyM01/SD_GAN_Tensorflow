@@ -287,24 +287,24 @@ class m4_BE_GAN_network:
                 tf.summary.scalar('pose_loss_128', self.pose_loss_128)
                 tf.summary.scalar('id_loss_128', self.id_loss_128)
 
-                grad_g_8 = self.op_g.compute_gradients(self.g_loss_8 * 0.00001, var_list=vars_G_8x8)
+                grad_g_8 = self.op_g.compute_gradients(self.g_loss_8, var_list=vars_G_8x8)
                 grads_g_8.append(grad_g_8)
-                grad_d_8 = self.op_d.compute_gradients(self.d_loss_8 * 0.00001, var_list=AE_D_vars_8x8)
+                grad_d_8 = self.op_d.compute_gradients(self.d_loss_8, var_list=AE_D_vars_8x8)
                 grads_d_8.append(grad_d_8)
 
-                grad_g_16 = self.op_g.compute_gradients(self.g_loss_16 * 0.0001, var_list=vars_G_16x16)
+                grad_g_16 = self.op_g.compute_gradients(self.g_loss_16, var_list=vars_G_16x16)
                 grads_g_16.append(grad_g_16)
-                grad_d_16 = self.op_d.compute_gradients(self.d_loss_16 * 0.0001, var_list=AE_D_vars_16x16)
+                grad_d_16 = self.op_d.compute_gradients(self.d_loss_16, var_list=AE_D_vars_16x16)
                 grads_d_16.append(grad_d_16)
 
-                grad_g_32 = self.op_g.compute_gradients(self.g_loss_32 * 0.001, var_list=vars_G_32x32)
+                grad_g_32 = self.op_g.compute_gradients(self.g_loss_32, var_list=vars_G_32x32)
                 grads_g_32.append(grad_g_32)
-                grad_d_32 = self.op_d.compute_gradients(self.d_loss_32 * 0.001, var_list=AE_D_vars_32x32)
+                grad_d_32 = self.op_d.compute_gradients(self.d_loss_32, var_list=AE_D_vars_32x32)
                 grads_d_32.append(grad_d_32)
 
-                grad_g_64 = self.op_g.compute_gradients(self.g_loss_64 * 0.1, var_list=vars_G_64x64)
+                grad_g_64 = self.op_g.compute_gradients(self.g_loss_64, var_list=vars_G_64x64)
                 grads_g_64.append(grad_g_64)
-                grad_d_64 = self.op_d.compute_gradients(self.d_loss_64 * 0.1, var_list=AE_D_vars_64x64)
+                grad_d_64 = self.op_d.compute_gradients(self.d_loss_64, var_list=AE_D_vars_64x64)
                 grads_d_64.append(grad_d_64)
 
                 grad_g_128 = self.op_g.compute_gradients(self.g_loss_128, var_list=vars_G_128x128)
