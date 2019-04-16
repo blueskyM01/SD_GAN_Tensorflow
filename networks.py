@@ -241,38 +241,44 @@ class m4_BE_GAN_network:
 
                 self.d_loss_real_128 = tf.reduce_mean(tf.abs(AE_X_128x128 - img_128))
                 self.d_loss_fake_128 = tf.reduce_mean(tf.abs(AE_G_128x128 - G_img_128x128))
-                self.d_loss_128 = self.d_loss_real_128 - self.k_t_128 * self.d_loss_fake_128
+                self.d_loss_128 = self.d_loss_real_128 - self.k_t_128 * self.d_loss_fake_128 + self.d_loss_8 + \
+                                  self.d_loss_16 + self.d_loss_32 + self.d_loss_64
                 self.g_loss_128 = self.d_loss_fake_128 + self.cfg.lambda_s * self.shape_loss_128 + \
                               self.cfg.lambda_e * self.expr_loss_128 \
-                              + self.cfg.lambda_p * self.pose_loss_128 + self.cfg.lambda_id * self.id_loss_128
+                              + self.cfg.lambda_p * self.pose_loss_128 + self.cfg.lambda_id * self.id_loss_128 + \
+                                  self.g_loss_8 + self.g_loss_16 + self.g_loss_32 + self.g_loss_64
 
                 tf.summary.image('image_fake_8', G_img_8x8, 3)
-                tf.summary.scalar('g_loss_8', self.g_loss_8)
-                tf.summary.scalar('d_loss_8', self.d_loss_8)
+                # tf.summary.scalar('g_loss_8', self.g_loss_8)
+                # tf.summary.scalar('d_loss_8', self.d_loss_8)
+
                 # tf.summary.scalar('shape_loss_8', self.shape_loss_8)
                 # tf.summary.scalar('expr_loss_8', self.expr_loss_8)
                 # tf.summary.scalar('pose_loss_8', self.pose_loss_8)
                 # tf.summary.scalar('id_loss_8', self.id_loss_8)
 
                 tf.summary.image('image_fake_16', G_img_16x16, 3)
-                tf.summary.scalar('g_loss_16', self.g_loss_16)
-                tf.summary.scalar('d_loss_16', self.d_loss_16)
+                # tf.summary.scalar('g_loss_16', self.g_loss_16)
+                # tf.summary.scalar('d_loss_16', self.d_loss_16)
+
                 # tf.summary.scalar('shape_loss_16', self.shape_loss_16)
                 # tf.summary.scalar('expr_loss_16', self.expr_loss_16)
                 # tf.summary.scalar('pose_loss_16', self.pose_loss_16)
                 # tf.summary.scalar('id_loss_16', self.id_loss_16)
 
                 tf.summary.image('image_fake_32', G_img_32x32, 3)
-                tf.summary.scalar('g_loss_32', self.g_loss_32)
-                tf.summary.scalar('d_loss_32', self.d_loss_32)
+                # tf.summary.scalar('g_loss_32', self.g_loss_32)
+                # tf.summary.scalar('d_loss_32', self.d_loss_32)
+
                 # tf.summary.scalar('shape_loss_32', self.shape_loss_32)
                 # tf.summary.scalar('expr_loss_32', self.expr_loss_32)
                 # tf.summary.scalar('pose_loss_32', self.pose_loss_32)
                 # tf.summary.scalar('id_loss_32', self.id_loss_32)
 
                 tf.summary.image('image_fake_64', G_img_64x64, 3)
-                tf.summary.scalar('g_loss_64', self.g_loss_64)
-                tf.summary.scalar('d_loss_64', self.d_loss_64)
+                # tf.summary.scalar('g_loss_64', self.g_loss_64)
+                # tf.summary.scalar('d_loss_64', self.d_loss_64)
+
                 # tf.summary.scalar('shape_loss_64', self.shape_loss_64)
                 # tf.summary.scalar('expr_loss_64', self.expr_loss_64)
                 # tf.summary.scalar('pose_loss_64', self.pose_loss_64)
@@ -287,25 +293,25 @@ class m4_BE_GAN_network:
                 tf.summary.scalar('pose_loss_128', self.pose_loss_128)
                 tf.summary.scalar('id_loss_128', self.id_loss_128)
 
-                grad_g_8 = self.op_g.compute_gradients(self.g_loss_8, var_list=vars_G_8x8)
-                grads_g_8.append(grad_g_8)
-                grad_d_8 = self.op_d.compute_gradients(self.d_loss_8, var_list=AE_D_vars_8x8)
-                grads_d_8.append(grad_d_8)
-
-                grad_g_16 = self.op_g.compute_gradients(self.g_loss_16, var_list=vars_G_16x16)
-                grads_g_16.append(grad_g_16)
-                grad_d_16 = self.op_d.compute_gradients(self.d_loss_16, var_list=AE_D_vars_16x16)
-                grads_d_16.append(grad_d_16)
-
-                grad_g_32 = self.op_g.compute_gradients(self.g_loss_32, var_list=vars_G_32x32)
-                grads_g_32.append(grad_g_32)
-                grad_d_32 = self.op_d.compute_gradients(self.d_loss_32, var_list=AE_D_vars_32x32)
-                grads_d_32.append(grad_d_32)
-
-                grad_g_64 = self.op_g.compute_gradients(self.g_loss_64, var_list=vars_G_64x64)
-                grads_g_64.append(grad_g_64)
-                grad_d_64 = self.op_d.compute_gradients(self.d_loss_64, var_list=AE_D_vars_64x64)
-                grads_d_64.append(grad_d_64)
+                # grad_g_8 = self.op_g.compute_gradients(self.g_loss_8, var_list=vars_G_8x8)
+                # grads_g_8.append(grad_g_8)
+                # grad_d_8 = self.op_d.compute_gradients(self.d_loss_8, var_list=AE_D_vars_8x8)
+                # grads_d_8.append(grad_d_8)
+                #
+                # grad_g_16 = self.op_g.compute_gradients(self.g_loss_16, var_list=vars_G_16x16)
+                # grads_g_16.append(grad_g_16)
+                # grad_d_16 = self.op_d.compute_gradients(self.d_loss_16, var_list=AE_D_vars_16x16)
+                # grads_d_16.append(grad_d_16)
+                #
+                # grad_g_32 = self.op_g.compute_gradients(self.g_loss_32, var_list=vars_G_32x32)
+                # grads_g_32.append(grad_g_32)
+                # grad_d_32 = self.op_d.compute_gradients(self.d_loss_32, var_list=AE_D_vars_32x32)
+                # grads_d_32.append(grad_d_32)
+                #
+                # grad_g_64 = self.op_g.compute_gradients(self.g_loss_64, var_list=vars_G_64x64)
+                # grads_g_64.append(grad_g_64)
+                # grad_d_64 = self.op_d.compute_gradients(self.d_loss_64, var_list=AE_D_vars_64x64)
+                # grads_d_64.append(grad_d_64)
 
                 grad_g_128 = self.op_g.compute_gradients(self.g_loss_128, var_list=vars_G_128x128)
                 grads_g_128.append(grad_g_128)
@@ -313,37 +319,37 @@ class m4_BE_GAN_network:
                 grads_d_128.append(grad_d_128)
             print('Init GPU:{}'.format(i))
 
-        mean_grad_g_8 = m4_ops.m4_average_grads(grads_g_8)
-        mean_grad_d_8 = m4_ops.m4_average_grads(grads_d_8)
-        self.g_optim_8 = self.op_g.apply_gradients(mean_grad_g_8)
-        self.d_optim_8 = self.op_d.apply_gradients(mean_grad_d_8)
-        self.balance_8 = self.gamma * self.d_loss_real_8 - self.g_loss_8
-        self.measure_8 = self.d_loss_real_8 + tf.abs(self.balance_8)
-        tf.summary.scalar('measure_8', self.measure_8)
-
-        mean_grad_g_16 = m4_ops.m4_average_grads(grads_g_16)
-        mean_grad_d_16 = m4_ops.m4_average_grads(grads_d_16)
-        self.g_optim_16 = self.op_g.apply_gradients(mean_grad_g_16)
-        self.d_optim_16 = self.op_d.apply_gradients(mean_grad_d_16)
-        self.balance_16 = self.gamma * self.d_loss_real_16 - self.g_loss_16
-        self.measure_16 = self.d_loss_real_16 + tf.abs(self.balance_16)
-        tf.summary.scalar('measure_16', self.measure_16)
-
-        mean_grad_g_32 = m4_ops.m4_average_grads(grads_g_32)
-        mean_grad_d_32 = m4_ops.m4_average_grads(grads_d_32)
-        self.g_optim_32 = self.op_g.apply_gradients(mean_grad_g_32)
-        self.d_optim_32 = self.op_d.apply_gradients(mean_grad_d_32)
-        self.balance_32 = self.gamma * self.d_loss_real_32 - self.g_loss_32
-        self.measure_32 = self.d_loss_real_32 + tf.abs(self.balance_32)
-        tf.summary.scalar('measure_32', self.measure_32)
-
-        mean_grad_g_64 = m4_ops.m4_average_grads(grads_g_64)
-        mean_grad_d_64 = m4_ops.m4_average_grads(grads_d_64)
-        self.g_optim_64 = self.op_g.apply_gradients(mean_grad_g_64)
-        self.d_optim_64 = self.op_d.apply_gradients(mean_grad_d_64)
-        self.balance_64 = self.gamma * self.d_loss_real_64 - self.g_loss_64
-        self.measure_64 = self.d_loss_real_64 + tf.abs(self.balance_64)
-        tf.summary.scalar('measure_64', self.measure_64)
+        # mean_grad_g_8 = m4_ops.m4_average_grads(grads_g_8)
+        # mean_grad_d_8 = m4_ops.m4_average_grads(grads_d_8)
+        # self.g_optim_8 = self.op_g.apply_gradients(mean_grad_g_8)
+        # self.d_optim_8 = self.op_d.apply_gradients(mean_grad_d_8)
+        # self.balance_8 = self.gamma * self.d_loss_real_8 - self.g_loss_8
+        # self.measure_8 = self.d_loss_real_8 + tf.abs(self.balance_8)
+        # tf.summary.scalar('measure_8', self.measure_8)
+        #
+        # mean_grad_g_16 = m4_ops.m4_average_grads(grads_g_16)
+        # mean_grad_d_16 = m4_ops.m4_average_grads(grads_d_16)
+        # self.g_optim_16 = self.op_g.apply_gradients(mean_grad_g_16)
+        # self.d_optim_16 = self.op_d.apply_gradients(mean_grad_d_16)
+        # self.balance_16 = self.gamma * self.d_loss_real_16 - self.g_loss_16
+        # self.measure_16 = self.d_loss_real_16 + tf.abs(self.balance_16)
+        # tf.summary.scalar('measure_16', self.measure_16)
+        #
+        # mean_grad_g_32 = m4_ops.m4_average_grads(grads_g_32)
+        # mean_grad_d_32 = m4_ops.m4_average_grads(grads_d_32)
+        # self.g_optim_32 = self.op_g.apply_gradients(mean_grad_g_32)
+        # self.d_optim_32 = self.op_d.apply_gradients(mean_grad_d_32)
+        # self.balance_32 = self.gamma * self.d_loss_real_32 - self.g_loss_32
+        # self.measure_32 = self.d_loss_real_32 + tf.abs(self.balance_32)
+        # tf.summary.scalar('measure_32', self.measure_32)
+        #
+        # mean_grad_g_64 = m4_ops.m4_average_grads(grads_g_64)
+        # mean_grad_d_64 = m4_ops.m4_average_grads(grads_d_64)
+        # self.g_optim_64 = self.op_g.apply_gradients(mean_grad_g_64)
+        # self.d_optim_64 = self.op_d.apply_gradients(mean_grad_d_64)
+        # self.balance_64 = self.gamma * self.d_loss_real_64 - self.g_loss_64
+        # self.measure_64 = self.d_loss_real_64 + tf.abs(self.balance_64)
+        # tf.summary.scalar('measure_64', self.measure_64)
 
         mean_grad_g_128 = m4_ops.m4_average_grads(grads_g_128)
         mean_grad_d_128 = m4_ops.m4_average_grads(grads_d_128)
@@ -353,21 +359,17 @@ class m4_BE_GAN_network:
         self.measure_128 = self.d_loss_real_128 + tf.abs(self.balance_128)
         tf.summary.scalar('measure_128', self.measure_128)
 
-        self.k_update_8 = tf.assign(self.k_t_8, tf.clip_by_value(self.k_t_8 + self.lambda_k * self.balance_8, 0, 1))
-        self.k_update_16 = tf.assign(self.k_t_16, tf.clip_by_value(self.k_t_16 + self.lambda_k * self.balance_16, 0, 1))
-        self.k_update_32 = tf.assign(self.k_t_32, tf.clip_by_value(self.k_t_32 + self.lambda_k * self.balance_32, 0, 1))
-        self.k_update_64 = tf.assign(self.k_t_64, tf.clip_by_value(self.k_t_64 + self.lambda_k * self.balance_64, 0, 1))
+        # self.k_update_8 = tf.assign(self.k_t_8, tf.clip_by_value(self.k_t_8 + self.lambda_k * self.balance_8, 0, 1))
+        # self.k_update_16 = tf.assign(self.k_t_16, tf.clip_by_value(self.k_t_16 + self.lambda_k * self.balance_16, 0, 1))
+        # self.k_update_32 = tf.assign(self.k_t_32, tf.clip_by_value(self.k_t_32 + self.lambda_k * self.balance_32, 0, 1))
+        # self.k_update_64 = tf.assign(self.k_t_64, tf.clip_by_value(self.k_t_64 + self.lambda_k * self.balance_64, 0, 1))
 
-        tf.summary.scalar('kt_8', self.k_t_8)
-        tf.summary.scalar('kt_16', self.k_t_16)
-        tf.summary.scalar('kt_32', self.k_t_32)
-        tf.summary.scalar('kt_64', self.k_t_64)
+        # tf.summary.scalar('kt_8', self.k_t_8)
+        # tf.summary.scalar('kt_16', self.k_t_16)
+        # tf.summary.scalar('kt_32', self.k_t_32)
+        # tf.summary.scalar('kt_64', self.k_t_64)
         tf.summary.scalar('kt_128', self.k_t_128)
-        with tf.control_dependencies([self.d_optim_8, self.g_optim_8, self.k_update_8,
-                                      self.d_optim_16, self.g_optim_16, self.k_update_16,
-                                      self.d_optim_32, self.g_optim_32, self.k_update_32,
-                                      self.d_optim_64, self.g_optim_64, self.k_update_64,
-                                      self.d_optim_128, self.g_optim_128]):
+        with tf.control_dependencies([self.d_optim_128, self.g_optim_128]):
             self.k_update_128 = tf.assign(self.k_t_128, tf.clip_by_value(self.k_t_128 + self.lambda_k * self.balance_128, 0, 1))
 
 
