@@ -208,55 +208,283 @@ class my_gan:
         # batch_idxs = dataset_size // (self.cfg.batch_size)
         batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
 
-        # np.random.seed(1)
-        batch_z = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
+        np.random.seed(1)
+        batch_z = np.random.uniform(0.5, 0.8, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
 
         counter = 0
         # try:
         while 1:
-            counter += 1
+
             batch_images, batch_labels = self.sess.run(one_element)
 
             if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
                 for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                     batch_images = np.append(batch_images, batch_images[0:1], axis=0)
 
-            image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/image_28_11-G.jpg', 1)  # BGR
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
-            image = image / 127.5 - 1.0
+            # image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/happy_open_mouse.jpg', 1)  # BGR
+            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            # image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+            # image = image / 127.5 - 1.0
 
+
+
+
+
+            '''
+            # save origin image
+            image_lt = []
+            for i in range(1, 64 + 1):
+                image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + str(i) + '.jpg', 1)  # BGR
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                image = image / 127.5 - 1.0
+                image_lt.append(image)
+            batch_images_1 = np.asarray(image_lt)
+            m4_image_save_cv(batch_images_1, '{}/image_{}.jpg'.format(self.cfg.test_sample_save_dir, counter), 8)
+            break
+            '''
+
+
+
+
+            '''
+            pose实验
+            
+            image_list = []
+
+            for i in range(1, 64 + 1):
+                image_lt = []
+                for idi in range(self.cfg.batch_size):
+                    image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + str(i) + '.jpg', 1)  # BGR
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                    image = image / 127.5 - 1.0
+                    image_lt.append(image)
+                batch_images_1 = np.asarray(image_lt)
+
+
+
+                # [expr] = self.sess.run([self.expr], feed_dict={self.images: batch_images_1})
+                # print(expr)
+
+                pose_list = []
+                aaaa = [[0.22360677, -0.52360681, 0.52360675, -0.52360677, 0.22360681, 0.2236068],
+                        [0.22360677, -0.42360681, 0.42360675, -0.42360677, 0.22360681, 0.2236068],
+                        [0.22360677, -0.32360681, 0.32360675, -0.32360677, 0.22360681, 0.2236068],
+                        [0.22360677, -0.22360681, 0.22360675, -0.22360677, 0.22360681, 0.2236068],
+                        [0.22360677, -0.12360681, 0.12360675, -0.12360677, 0.22360681, 0.2236068],
+                        [0.22360677, -0.005360681, 0.005360675, -0.005360677, 0.22360681, 0.2236068],
+                        [0.22360677, 0.18360681, -0.18360675, 0.18360677, 0.22360681, 0.2236068],
+                        [0.22360677, 0.28360681, -0.28360675, 0.28360677, 0.22360681, 0.2236068],
+                        [0.22360677, 0.32360681, -0.32360675, 0.32360677, 0.22360681, 0.2236068],
+                        [0.22360677, 0.45360681, -0.45360675, 0.45360677, 0.22360681, 0.2236068],
+                        [0.22360677, 0.62360681, -0.62360675, 0.62360677, 0.22360681, 0.2236068],
+                        [-0.52360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [-0.22360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [-0.02360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [0.22360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [0.42360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [0.72360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [0.92360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068],
+                        [1.42360675, 0.022360672, 0.022360665, 0.02236068, 0.2236068, 0.2236068]]
+                for j in range(self.cfg.batch_size):
+                    pose_list.append(aaaa[counter])
+                pose = np.array(pose_list)
+
+                # expr_list = []
+                # aaaa = [-0.22360678, -0.22360677,  0.22360678, -0.2236068,  -0.22360682,  0.22360682,
+                #        0.22360682,  0.2236068,  -0.22360682, -0.2236068,  -0.22360682, -0.2236068,
+                #       -0.2236068,  0.22360682, -0.22360682,  0.22360681,  0.2236068,  -0.22360678,
+                #       -0.22360678, -0.22360678,  0.2236068,   0.22360681, -0.22360678, -0.22360677,
+                #        0.22360681, 0.2236068,   0.22360678,  0.22360678,  0.22360681]
+                # for j in range(self.cfg.batch_size):
+                #     expr_list.append(aaaa)
+                # expr = np.array(expr_list)
+
+                [id_feat, fshape, expr] = self.sess.run([self.id_feat, self.shape,self.expr],
+                                                              feed_dict={self.images: batch_images_1})
+
+
+
+                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                     self.id_feat_real: id_feat,
+                                                                     self.shape_real_norm: fshape,
+                                                                     self.pose_real_norm: pose,
+                                                                     self.expr_real_norm: expr})
+                image_list.append(samples[0])
+            print(np.array(image_list).shape)
+
+            m4_image_save_cv(np.array(image_list), '{}/image_{}.jpg'.format(self.cfg.test_sample_save_dir, counter), 8)
+            # m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='')
+            # print('save image_{}_.jpg image.'.format(counter))
+            # m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+            # print('save image_{}.jpg image.'.format(counter))
+            counter += 1
+            '''
+
+
+
+
+
+
+
+            '''
+            # expr实验
 
             image_list = []
 
-            for i in range(self.cfg.batch_size):
-                image_list.append(image)
+            for i in range(1, 64 + 1):
+                image_lt = []
+                for idi in range(self.cfg.batch_size):
+                    image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + str(i) + '.jpg', 1)  # BGR
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                    image = image / 127.5 - 1.0
+                    image_lt.append(image)
+                batch_images_1 = np.asarray(image_lt)
 
-            batch_images_1 = np.asarray(image_list)
 
-            # try:
-            [expr] = self.sess.run([self.expr], feed_dict={self.images: batch_images})
 
-            [id_feat, pose, fshape] = self.sess.run([self.id_feat, self.pose, self.shape], feed_dict={self.images: batch_images})
+                expr_list = []
+                np_1 = np.array([-0.4, 0.4, -0.4, 0.4, -0.4, 0.4, 0.4, -0.4, 0.4, -0.4, -0.4, -0.4, -0.4, 0.4, -0.4, 0.4, 0.4, 0.4, 0.4, -0.4, 0.4,
+                                -0.4, 0.4, 0.4, -0.4, 0.4, -0.4, 0.4, 0.4])
+                np_2 = 1.5 * np.array([-0.4, -0.4, 0.4, -0.4, -0.4, 0.4, 0.4, 0.4, -0.4, -0.4, -0.4, -0.4, -0.4, 0.4, -0.4, 0.4, 0.4, -0.4, -0.4, -0.4, 0.4,
+                        0.4, -0.4, -0.4, 0.4, 0.4, 0.4, 0.4, 0.4])
 
-            [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
-                                                                 self.id_feat_real:id_feat,
-                                                                 self.shape_real_norm:fshape,
-                                                                 self.pose_real_norm:pose,
-                                                                 self.expr_real_norm:expr})
-            m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter),ff='')
-            print('save image_{}_.jpg image.'.format(counter))
-            m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+                aaaa = m4_np_one_change_to_np_two(np_1,np_2, 18)
+
+
+                for j in range(self.cfg.batch_size):
+                    expr_list.append(aaaa[counter])
+                expr = np.array(expr_list)
+
+
+
+                [id_feat, fshape, pose] = self.sess.run([self.id_feat, self.shape, self.pose],
+                                                              feed_dict={self.images: batch_images_1})
+
+
+
+                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                     self.id_feat_real: id_feat,
+                                                                     self.shape_real_norm: fshape,
+                                                                     self.pose_real_norm: pose,
+                                                                     self.expr_real_norm: expr})
+                image_list.append(samples[0])
+
+
+            m4_image_save_cv(np.array(image_list), '{}/image_{}.jpg'.format(self.cfg.test_sample_save_dir, counter), 8)
+            # m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='')
             print('save image_{}.jpg image.'.format(counter))
+            # m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+            # print('save image_{}.jpg image.'.format(counter))
+            counter += 1
+            '''
 
-            # break
-
-                # except:
-                #     print('one picture save error....')
 
 
-        # except:
-        #     print('Mission complete!')
+            '''
+
+            #illumination实验
+
+            np.random.seed(1)
+            np_1 = np.random.uniform(0.9, 1.0, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
+                np.float32)
+            np_2 = np.random.uniform(-1.0, -0.9, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(
+                np.float32)
+
+            image_list = []
+
+            for i in range(1, 64 + 1):
+                image_lt = []
+                for idi in range(self.cfg.batch_size):
+                    image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + str(i) + '.jpg', 1)  # BGR
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                    image = image / 127.5 - 1.0
+                    image_lt.append(image)
+                batch_images_1 = np.asarray(image_lt)
+
+
+                noise_list = m4_np_one_change_to_np_two(np_1, np_2, 18)
+                batch_z = noise_list[counter]
+
+                [id_feat, fshape, pose, expr] = self.sess.run([self.id_feat, self.shape, self.pose, self.expr],
+                                                        feed_dict={self.images: batch_images_1})
+
+                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                     self.id_feat_real: id_feat,
+                                                                     self.shape_real_norm: fshape,
+                                                                     self.pose_real_norm: pose,
+                                                                     self.expr_real_norm: expr})
+                image_list.append(samples[0])
+
+            m4_image_save_cv(np.array(image_list), '{}/image_{}.jpg'.format(self.cfg.test_sample_save_dir, counter), 8)
+            # m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='')
+            print('save image_{}.jpg image.'.format(counter))
+            # m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+            # print('save image_{}.jpg image.'.format(counter))
+            counter += 1
+            '''
+
+
+
+            '''
+            # id_change
+            image_list = []
+
+            for i in range(1, 64 + 1):
+                image_lt = []
+                for idi in range(self.cfg.batch_size):
+                    image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + str(i) + '.jpg', 1)  # BGR
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                    image = image / 127.5 - 1.0
+                    image_lt.append(image)
+                batch_images_1 = np.asarray(image_lt)
+
+                image_lt1 = []
+                for did in range(self.cfg.batch_size):
+                    image = cv2.imread('/home/yang/My_Job/study/Gan_Network/photo/' + '72' + '.jpg', 1)  # BGR
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                    image = image / 127.5 - 1.0
+                    image_lt1.append(image)
+                batch_images_2 = np.asarray(image_lt1)
+
+
+                [pose1, fshape1, expr1] = self.sess.run([self.pose, self.shape, self.expr],
+                                                        feed_dict={self.images: batch_images_1})
+                [pose2, fshape2, expr2] = self.sess.run([self.pose, self.shape, self.expr],
+                                                        feed_dict={self.images: batch_images_2})
+
+                [id_feat1] = self.sess.run([self.id_feat], feed_dict={self.images: batch_images_1})
+                [id_feat2] = self.sess.run([self.id_feat], feed_dict={self.images: batch_images_2})
+
+                pose = m4_np_one_change_to_np_two(pose2, pose1, 18)
+                fshape = m4_np_one_change_to_np_two(fshape2, fshape1, 18)
+                expr = m4_np_one_change_to_np_two(expr2, expr1, 18)
+                id_feat = m4_np_one_change_to_np_two(id_feat2, id_feat1, 18)
+
+
+
+
+                [samples] = self.sess.run([self.sampler], feed_dict={self.z: batch_z,
+                                                                     self.id_feat_real: id_feat[counter],
+                                                                     self.shape_real_norm: fshape[counter],
+                                                                     self.pose_real_norm: pose[counter],
+                                                                     self.expr_real_norm: expr[counter]})
+                image_list.append(samples[0])
+
+            m4_image_save_cv(np.array(image_list), '{}/image_{}.jpg'.format(self.cfg.test_sample_save_dir, counter), 8)
+            # m4_image_onebyone_cv(samples, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='')
+            print('save image_{}.jpg image.'.format(counter))
+            # m4_image_onebyone_cv(batch_images, '{}/image_{}_'.format(self.cfg.test_sample_save_dir, counter), ff='-G')
+            # print('save image_{}.jpg image.'.format(counter))
+            counter += 1
+            '''
+
+
 
 
 

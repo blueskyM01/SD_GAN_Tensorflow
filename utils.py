@@ -26,6 +26,7 @@ def m4_image_save_cv(images, savepath, rows=4, zero_mean=True):
                 i * w_nums + j]
 
     merge_image = cv2.cvtColor(merge_image, cv2.COLOR_BGR2RGB)  # cv2默认为bgr顺序
+    merge_image = cv2.resize(merge_image, (512, 512), interpolation=cv2.INTER_CUBIC)
     cv2.imwrite(savepath, merge_image)
 
 def m4_image_onebyone_cv(images, savepath, ff='', rows=4, zero_mean=True):
@@ -89,6 +90,22 @@ def m4_get_file_label_name(filepath_name,save_data_path_name):
         filename_list.append(os.path.join(save_data_path_name,filename[i].lstrip("b'").rstrip("'")))
         label_list.append(int(label[i].lstrip("b'").rstrip("'")))
     return filename_list,label_list
+
+def m4_np_one_change_to_np_two(np_1, np_2, steps):
+    '''
+    :param np_1:
+    :param np_2:
+    :param steps:
+    :return:
+    '''
+    m4_distance = np_2 - np_1
+    m4_step_distance = m4_distance / steps
+    m4_intermediary_list = []
+    for i in range(steps):
+        np_1 = np_1 + m4_step_distance
+        m4_intermediary_list.append(np_1)
+    return m4_intermediary_list
+
 
 
 
