@@ -107,7 +107,7 @@ class my_gan:
 
 
         # batch_idxs = dataset_size // (self.cfg.batch_size * self.cfg.num_gpus)
-        batch_idxs = 50400 * 40 // (self.cfg.batch_size * self.cfg.num_gpus)
+        batch_idxs = 50400 * 100 // (self.cfg.batch_size * self.cfg.num_gpus)
         batch_images_G, batch_labels_G = self.sess.run(one_element)
         batch_z_G = np.random.uniform(-1, 1, [self.cfg.batch_size * self.cfg.num_gpus, self.cfg.z_dim]).astype(np.float32)
 
@@ -124,6 +124,16 @@ class my_gan:
                 if batch_images.shape[0] < self.cfg.batch_size * self.cfg.num_gpus:
                     for add_idx in range(self.cfg.batch_size * self.cfg.num_gpus - batch_images.shape[0]):
                         batch_images = np.append(batch_images,batch_images[0:1],axis=0)
+
+                if idx == 1 or idx % (batch_idxs // 4) == 0:
+                    ads = []
+                    for a_idx in range(self.cfg.batch_size * self.cfg.num_gpus):
+                        image = cv2.imread('/home/yang/My_Job/study/Gan_Network/ff-picture/' + str(a_idx) + '.jpg', 1)  # BGR
+                        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        image = cv2.resize(image, (128, 128), interpolation=cv2.INTER_CUBIC)
+                        image = image / 127.5 - 1.0
+                        ads.append(image)
+                    batch_images_11 = batch_images = np.array(ads)
 
                 # get measure stand
                 k_update, k_t, Mglobal = self.sess.run([self.k_update, self.k_t, self.Mglobal],
@@ -156,10 +166,11 @@ class my_gan:
                     "Epoch: [%2d/%2d] [%5d/%5d] time:%3.2f, d_loss:%.4f, g_loss:%.4f, p_loss:%.5f, s_loss:%.5f, e_loss:%.5f, id_loss:%.5f, k_t:%.6f, Mglobal:%.6f, g_lr:%.6f, d_lr:%.6f" \
                     % (epoch, self.cfg.epoch, idx, batch_idxs, timediff, d_loss, g_loss,p_loss,s_loss,e_loss,
                        id_loss, k_t, Mglobal, self.g_lr_, self.d_lr_))
+
                 try:
-                    if epoch % self.cfg.saveimage_period == 0 and idx % self.cfg.saveimage_idx == 0:
-                        samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images_G,
-                                                                           self.z: batch_z_G})
+                    if idx % 500 == 0:
+                        samples = self.sess.run([self.sampler], feed_dict={self.images: batch_images_11,
+                                                                           self.z: batch_z})
                         m4_image_save_cv(samples[0], '{}/train_{}_{}.jpg'.format(self.cfg.sampel_save_dir, epoch, counter))
                         print('save train_{}_{}.jpg image.'.format(epoch, counter))
                 except:

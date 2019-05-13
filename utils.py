@@ -26,7 +26,7 @@ def m4_image_save_cv(images, savepath, rows=4, zero_mean=True):
                 i * w_nums + j]
 
     merge_image = cv2.cvtColor(merge_image, cv2.COLOR_BGR2RGB)  # cv2默认为bgr顺序
-    merge_image = cv2.resize(merge_image, (512, 512), interpolation=cv2.INTER_CUBIC)
+    # merge_image = cv2.resize(merge_image, (512, 512), interpolation=cv2.INTER_CUBIC)
     cv2.imwrite(savepath, merge_image)
 
 def m4_image_onebyone_cv(images, savepath, ff='', rows=4, zero_mean=True):
